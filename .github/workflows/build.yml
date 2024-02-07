@@ -1,4 +1,4 @@
-name: Build tgbot-qr-scanner with nginx
+name: Build quree-scan-miniapp with nginx
 
 on:
   push:
@@ -14,12 +14,19 @@ jobs:
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
+      - name: Create IAM token
+        id: iam-token-generation
+        uses: bigtows/yc-token@1.0
+        with:
+          service-account-token: ${{ secrets.SERVICE_ACCOUNT_TOKEN }}
+          type-token: iam
+
       - name: Kaniko build
         uses: aevea/action-kaniko@v0.10.0
         with:
-          registry: '${{ vars.DOCKER_REGISTRY }}'
-          username: '${{ secrets.DOCKER_REGISTRY_USER }}'
-          password: '${{ secrets.DOCKER_REGISTRY_PASSWORD }}'
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ steps.iam-token-generation.outputs.iam-token }}
           image: quree-scan-miniapp
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
           tag: ${{ env.RELEASE_VERSION }}
