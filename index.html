@@ -5,6 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan QR</title>
+    <style>
+        body {
+            color: var(--tg-theme-text-color);
+            background: var(--tg-theme-bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .hint {
+            color: var(--tg-theme-hint-color);
+        }
+
+        .link {
+            color: var(--tg-theme-link-color);
+        }
+
+        .button {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            font-size: 18px;
+        }
+
+        .button:not(:last-child) {
+            margin-bottom: 20px
+        }
+
+        #usercard {
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -69,39 +102,6 @@
         usercard.appendChild(userid); //добавляем
 
     </script>
-    <style>
-        body {
-            color: var(--tg-theme-text-color);
-            background: var(--tg-theme-bg-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 18px;
-        }
-
-        .hint {
-            color: var(--tg-theme-hint-color);
-        }
-
-        .link {
-            color: var(--tg-theme-link-color);
-        }
-
-        .button {
-            background: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            font-size: 18px;
-        }
-
-        .button:not(:last-child) {
-            margin-bottom: 20px
-        }
-
-        #usercard {
-            text-align: center;
-        }
-    </style>
 </body>
 
 </html>
