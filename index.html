@@ -26,6 +26,7 @@
 
         btn.onclick = function () {
             tg.showScanQrPopup({ text: "HELLO" }, function () {
+                tg.HapticFeedback.impactOccurred("heavy")
                 return true
             });
         }
