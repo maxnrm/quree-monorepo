@@ -17,19 +17,26 @@
 
 <body>
     <button id="open-scan">Scan QR</button>
+    <div id="content"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
         let btn = window.document.getElementById("open-scan")
 
-        tg.expand(); //расширяем на все окно  
-
         btn.onclick = function () {
             tg.showScanQrPopup({ text: "HELLO" }, function () {
-                tg.HapticFeedback.impactOccurred("heavy")
                 return true
             });
         }
+
+        tg.onEvent("qrTextReceived", function({ data }) {
+            let div = document.createElement("div");
+            div.innerHTML = data;
+            document.getElementById("content").appendChild(div) 
+        })
+
+        tg.expand();
+        tg.ready();
 
     </script>
 </body>
