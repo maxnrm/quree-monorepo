@@ -16,11 +16,10 @@ jobs:
       
       - name: Login to registry
         run: |
-          # echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login ${{ vars.DOCKER_REGISTRY }} \
-          # -u ${{ secrets.DOCKER_REGISTRY_USER }} \
-          # --password-stdin
-          echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" > key.json &&
-          cat key.json
+          echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login ${{ vars.DOCKER_REGISTRY }} \
+          -u ${{ secrets.DOCKER_REGISTRY_USER }} \
+          --password-stdin
+
       - name: Kaniko build
         uses: aevea/action-kaniko@v0.10.0
         with:
