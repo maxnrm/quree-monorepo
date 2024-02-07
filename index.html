@@ -23,16 +23,19 @@
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
         let btn = window.document.getElementById("open-scan")
 
+        let counter = 0
+
         btn.onclick = function () {
             tg.showScanQrPopup({ text: "HELLO" }, function () {
-                return true
+                return false
             });
         }
 
         tg.onEvent("qrTextReceived", function({ data }) {
             let div = document.createElement("div");
-            div.innerHTML = data;
+            div.innerHTML = counter + data;
             document.getElementById("content").appendChild(div) 
+            counter++
         })
 
         tg.expand();
