@@ -15,7 +15,7 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       
       - name: Login to registry
-        run: echo ${{ secrets.DOCKER_REGISTRY_PASSWORD }} | docker login ${{ vars.DOCKER_REGISTRY }} -u ${{ secrets.DOCKER_REGISTRY_USER }} --password-stdin
+        run: echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login ${{ vars.DOCKER_REGISTRY }} -u ${{ secrets.DOCKER_REGISTRY_USER }} --password-stdin
 
       - name: Kaniko build
         uses: aevea/action-kaniko@v0.10.0
