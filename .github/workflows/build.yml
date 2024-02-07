@@ -18,7 +18,7 @@ jobs:
         uses: aevea/action-kaniko@master
         with:
           image: curee-scan-miniapp
-          registry: ${{ env.DOCKER_REGISTRY }}
+          registry: ${{ vars.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_USER }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
