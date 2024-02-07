@@ -1,0 +1,26 @@
+name: Build tgbot-qr-scanner with nginx
+
+on:
+  push:
+    tags: ['\d+.\d+.\d+']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: maxnrm-dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Kaniko build
+        uses: aevea/action-kaniko@master
+        with:
+          image: gcr.io/kaniko-project/executor:debug-perf
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+          extra_args: "--snapshotMode=time --use-new-run --single-snapshot"
+          tag: ${{ env.RELEASE_VERSION }}
+          tag_with_latest: true
