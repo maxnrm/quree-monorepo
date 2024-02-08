@@ -1,0 +1,24 @@
+name: Deploy quree-scan-miniapp with nginx
+
+on:
+  push:
+    tags: ['\d+.\d+.\d+']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: maxnrm-dev
+    steps:
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Set kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config.yaml
+
+      - uses: azure/setup-helm@v3
+        id: install
+        with:
+          version: "v3.13.3"
+
+      - name: Upgrade quree
+        run: helm upgrade quree-scan-miniapp -n quree-scan-miniapp . --set image.tag=${{ env.RELEASE_VERSION }}
