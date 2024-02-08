@@ -33,6 +33,7 @@ jobs:
           tag_with_latest: true
 
   deploy:
+    needs: [build]
     runs-on: ubuntu-latest
     environment: maxnrm-dev
     steps:
