@@ -31,3 +31,23 @@ jobs:
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
           tag: ${{ env.RELEASE_VERSION }}
           tag_with_latest: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: maxnrm-dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Set kubeconfig
+        run: echo "${{ secrets.KUBECONFIG }}" > config.yaml
+
+      - uses: azure/setup-helm@v3
+        id: install
+        with:
+          version: "v3.13.3"
+
+      - name: Upgrade quree
+        run: helm --kubeconfig config.yaml upgrade quree-scan-miniapp -n quree-scan-miniapp helm --set image.tag=${{ env.RELEASE_VERSION }}
