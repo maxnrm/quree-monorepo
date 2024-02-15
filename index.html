@@ -36,8 +36,11 @@
             div.innerHTML = counter + data;
             document.getElementById("content").appendChild(div) 
             counter++
-            tg.PopupButton.text = "Scanned " + counter
-            fetch("https://webhook.site/6b64a6e2-c303-4427-b95f-24af5afa36b0", {method: "POST"})
+
+            fetch("/api/webhook", {
+                method: "POST",
+                body: counter + "" + data
+            })
         })
 
         tg.expand();
