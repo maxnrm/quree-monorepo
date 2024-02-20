@@ -1,64 +1,121 @@
 package bot
 
 import (
-	"encoding/json"
-	"io"
 	"log"
-	"net/http"
 	"quree/config"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
 )
 
-type CatFact struct {
-	Fact   string `json:"fact"`
-	Length int    `json:"length"`
+type botConfig struct {
+	settings           *tele.Settings
+	commandHandlersMap map[string]tele.HandlerFunc
+	middlewaresMap     *[]tele.MiddlewareFunc
+	menuButton         *tele.MenuButton
 }
 
-func Init() *tele.Bot {
+// var setProgramBtns [][]tele.ReplyButton = [][]tele.ReplyButton{
+// 	{tele.ReplyButton{Text: "Начать", Contact: true}},
+// }
 
-	log.Println("bot token:", config.ADMIN_BOT_TOKEN)
+var userBotConfig = &botConfig{
+	settings: &tele.Settings{
+		Token:  config.USER_BOT_TOKEN,
+		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+	},
 
-	settings := tele.Settings{
+	commandHandlersMap: map[string]tele.HandlerFunc{
+		"/start": startHandler,
+	},
+
+	middlewaresMap: &[]tele.MiddlewareFunc{
+		// ensureLoginMiddleware(),
+		miniLogger(),
+	},
+
+	menuButton: &tele.MenuButton{
+		Type: tele.MenuButtonWebApp,
+		Text: "Профиль",
+		WebApp: &tele.WebApp{
+			URL: config.USER_WEBAPP_URL,
+		},
+	},
+}
+
+var adminBotConfig = &botConfig{
+	settings: &tele.Settings{
 		Token:  config.ADMIN_BOT_TOKEN,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
-	}
+	},
 
-	b, err := tele.NewBot(settings)
+	commandHandlersMap: map[string]tele.HandlerFunc{
+		"/start": startHandler,
+	},
+
+	middlewaresMap: &[]tele.MiddlewareFunc{
+		// ensureLoginMiddleware(),
+		miniLogger(),
+	},
+
+	menuButton: &tele.MenuButton{
+		Type: tele.MenuButtonWebApp,
+		Text: "Сканер QR",
+		WebApp: &tele.WebApp{
+			URL: config.ADMIN_WEBAPP_URL,
+		},
+	},
+}
+
+var UserBot = Init(userBotConfig)
+var AdminBot = Init(adminBotConfig)
+
+func Init(c *botConfig) *tele.Bot {
+
+	log.Println("bot token:", c.settings.Token)
+
+	b, err := tele.NewBot(*c.settings)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	b.Handle("/hello", helloHandler)
-	b.Handle("кот", quoteHandler)
+	//	b.SetMenuButton(b.Me, c.menuButton)
+
+	for _, m := range *c.middlewaresMap {
+		b.Use(m)
+	}
+
+	for c, h := range c.commandHandlersMap {
+		b.Handle(c, h)
+	}
 
 	return b
 }
 
-func helloHandler(c tele.Context) error {
-	return c.Send("Hello!")
+func startHandler(c tele.Context) error {
+	return c.Send("Start!")
 }
 
-func quoteHandler(c tele.Context) error {
-	url := "https://catfact.ninja/fact"
-
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatal("Error while getting quote: ", err)
+func ensureLoginMiddleware() tele.MiddlewareFunc {
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(c tele.Context) error {
+			if c.Sender().IsBot {
+				return nil
+			}
+			return c.Send("Start!")
+		}
 	}
+}
 
-	body, _ := io.ReadAll(res.Body)
-	defer res.Body.Close()
+func miniLogger() tele.MiddlewareFunc {
+	l := log.Default()
 
-	var catFact CatFact
-
-	err = json.Unmarshal(body, &catFact)
-	if err != nil {
-		log.Fatal("Error while unmarshalling json: ", err)
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(c tele.Context) error {
+			chatID := c.Chat().ID
+			text := c.Message().Text
+			l.Println(chatID, text, "ok")
+			return next(c)
+		}
 	}
-
-	return c.Send(catFact.Fact)
 }

@@ -1,11 +1,22 @@
 package main
 
-import bot "quree/internal/bot"
+import (
+	bot "quree/internal/bot"
+	"sync"
+)
+
+var wg sync.WaitGroup
 
 func main() {
+	userBot := bot.UserBot
+	adminBot := bot.AdminBot
 
-	tgBot := bot.Init()
+	wg.Add(2)
 
-	tgBot.Start()
+	go userBot.Start()
+
+	go adminBot.Start()
+
+	wg.Wait()
 
 }

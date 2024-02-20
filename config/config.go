@@ -15,6 +15,8 @@ var NATS_URL = getenvStr("NATS_URL", "nats://localhost:4222")
 var TG_API_BASE_URL = getenvStr("TG_API_BASE_URL", "https://api.telegram.org")
 var USER_BOT_TOKEN = getenvStr("USER_BOT_TOKEN", "")
 var ADMIN_BOT_TOKEN = getenvStr("ADMIN_BOT_TOKEN", "")
+var USER_WEBAPP_URL = getenvStr("USER_WEBAPP_URL", "")
+var ADMIN_WEBAPP_URL = getenvStr("ADMIN_WEBAPP_URL", "")
 
 // UPDATES
 var NATS_UPDATES_STREAM = getenvStr("NATS_UPDATES_STREAM", "tg-updates")
