@@ -30,8 +30,8 @@ var userBotConfig = &botConfig{
 	},
 
 	middlewaresMap: &[]tele.MiddlewareFunc{
-		// ensureLoginMiddleware(),
 		miniLogger(),
+		ensureLoginMiddleware(),
 	},
 
 	menuButton: &tele.MenuButton{
@@ -54,8 +54,8 @@ var adminBotConfig = &botConfig{
 	},
 
 	middlewaresMap: &[]tele.MiddlewareFunc{
-		// ensureLoginMiddleware(),
 		miniLogger(),
+		ensureLoginMiddleware(),
 	},
 
 	menuButton: &tele.MenuButton{
@@ -102,7 +102,7 @@ func ensureLoginMiddleware() tele.MiddlewareFunc {
 			if c.Sender().IsBot {
 				return nil
 			}
-			return c.Send("Start!")
+			return c.Send("MW!")
 		}
 	}
 }
