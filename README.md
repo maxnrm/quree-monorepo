@@ -1,4 +1,8 @@
-# quree-scan-miniapp
-simple page for Telegram Mini Apps to scan QR codes
+# quree-monorepo
 
-# setting as Mini App
+# nats port-forward
+
+k port-forward svc/nats 4222:4222 -n nats
+
+# pub-test
+nats pub messages.tg123 '{"chat_id": "306562182", "text": "hello {{.Count}}"}' --count=10
