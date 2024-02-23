@@ -17,6 +17,7 @@ var USER_BOT_TOKEN = getenvStr("USER_BOT_TOKEN", "")
 var ADMIN_BOT_TOKEN = getenvStr("ADMIN_BOT_TOKEN", "")
 var USER_WEBAPP_URL = getenvStr("USER_WEBAPP_URL", "")
 var ADMIN_WEBAPP_URL = getenvStr("ADMIN_WEBAPP_URL", "")
+var POSTGRES_CONN_STRING = getenvStr("POSTGRES_CONN_STRING", "")
 
 // UPDATES
 var NATS_UPDATES_STREAM = getenvStr("NATS_UPDATES_STREAM", "tg-updates")
