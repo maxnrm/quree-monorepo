@@ -2,13 +2,6 @@ package enums
 
 type UserType string
 type MessageType string
-type ImageType string
-
-const (
-	PROFILE ImageType = "PROFILE"
-	QR      ImageType = "QR"
-	ATTACH  ImageType = "ATTACH"
-)
 
 const (
 	ADMIN UserType = "ADMIN"
