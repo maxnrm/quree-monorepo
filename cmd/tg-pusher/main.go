@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"quree/config"
@@ -22,41 +23,33 @@ var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
 	URL: config.NATS_URL,
 })
 
-func main() {
-
-	msgStreamConfig := jetstream.StreamConfig{
-		Name:      config.NATS_MESSAGES_STREAM,
-		Subjects:  []string{config.NATS_MESSAGES_SUBJECT},
-		Retention: jetstream.WorkQueuePolicy,
-		Storage:   jetstream.FileStorage,
-	}
-
-	msgConsumerConfig := jetstream.ConsumerConfig{
-		Durable:       config.NATS_MESSAGES_CONSUMER,
-		AckWait:       2 * time.Second,
-		MaxAckPending: 1,
-		MemoryStorage: true,
-	}
-
-	nc.CreateStream(msgStreamConfig)
-
-	cons := nc.CreateConsumer(msgStreamConfig.Name, msgConsumerConfig)
-
-	mh := createConsumeHandler(ctx)
-
-	cons.Consume(mh)
+var msgStreamConfig = jetstream.StreamConfig{
+	Name:      config.NATS_MESSAGES_STREAM,
+	Subjects:  []string{config.NATS_MESSAGES_SUBJECT},
+	Retention: jetstream.WorkQueuePolicy,
+	Storage:   jetstream.FileStorage,
 }
 
-func createConsumeHandler(ctx context.Context) jetstream.MessageHandler {
+var msgConsumerConfig = jetstream.ConsumerConfig{
+	Durable:       config.NATS_MESSAGES_CONSUMER,
+	AckWait:       2 * time.Second,
+	MaxAckPending: 1,
+	MemoryStorage: true,
+}
+
+type tgUser struct {
+	chatID        string
+	rateLimiter   *rate.Limiter
+	latestMsgSent *timestamp.Timestamp
+}
+
+var wg sync.WaitGroup
+
+func main() {
 
 	// create tgUser type, which will store user chat_id, individual user rateLimitier from package rate,
 	// that would limit messages at 1 per sec for every user
 	// and timestamp, which store info about last message sent time
-	type tgUser struct {
-		chatID        string
-		rateLimiter   *rate.Limiter
-		latestMsgSent *timestamp.Timestamp
-	}
 
 	tgUsersMap := make(map[string]tgUser)
 
@@ -72,39 +65,61 @@ func createConsumeHandler(ctx context.Context) jetstream.MessageHandler {
 					delete(tgUsersMap, k)
 				}
 			}
+
+			fmt.Println("Clean users")
+			fmt.Println(tgUsersMap)
 		}
 	}()
 
+	nc.CreateStream(msgStreamConfig)
+
+	cons := nc.CreateConsumer(msgStreamConfig.Name, msgConsumerConfig)
+
+	mh := createConsumeHandler(nc.Ctx, &tgUsersMap)
+
+	wg.Add(1)
+	cons.Consume(mh)
+	wg.Wait()
+}
+
+func createConsumeHandler(ctx context.Context, tgUsersMap *map[string]tgUser) jetstream.MessageHandler {
+
 	return func(msg jetstream.Msg) {
 		var msgJSON telegram.Message
+		json.Unmarshal(msg.Data(), &msgJSON)
 
 		// create following logic:
 		// if user is not in tgUsersMap, add him to tgUsersMap with rateLimiter and timestamp time.Now()
 		// if user exists in tgUsersMap, check if he can send message, if he can't, do msg.NackWithWait() for a sec
 		// if he can, send message and update timestamp in tgUsersMap
 
-		if _, ok := tgUsersMap[msgJSON.ChatID]; !ok {
+		if _, ok := (*tgUsersMap)[msgJSON.ChatID]; !ok {
 			limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_PER_USER))
-			tgUsersMap[msgJSON.ChatID] = tgUser{
+			(*tgUsersMap)[msgJSON.ChatID] = tgUser{
 				chatID:        msgJSON.ChatID,
-				rateLimiter:   rate.NewLimiter(limit, config.RATE_LIMIT_BURST),
+				rateLimiter:   rate.NewLimiter(limit, config.RATE_LIMIT_BURST_PER_USER),
 				latestMsgSent: &timestamp.Timestamp{Seconds: 0},
 			}
 		}
 
-		if !tgUsersMap[msgJSON.ChatID].rateLimiter.Allow() {
-			msg.NakWithDelay(1 * time.Second)
+		if !(*tgUsersMap)[msgJSON.ChatID].rateLimiter.Allow() {
+			msg.NakWithDelay(900 * time.Millisecond)
+			fmt.Println("Nacked user: ", msgJSON.ChatID)
 			return
 		}
 
-		json.Unmarshal(msg.Data(), &msgJSON)
-
-		fmt.Println(msgJSON)
+		// print out time of sent with seconds and milliseconds only
+		fmt.Println("Sent message at ", time.Now().Format("15:04:05.000"))
 		tg.SendMessage(msgJSON)
 
-		msg.DoubleAck(ctx)
+		latestMsgSent := timestamp.Timestamp{Seconds: time.Now().Unix()}
+		(*tgUsersMap)[msgJSON.ChatID] = tgUser{
+			chatID:        msgJSON.ChatID,
+			rateLimiter:   (*tgUsersMap)[msgJSON.ChatID].rateLimiter,
+			latestMsgSent: &latestMsgSent,
+		}
 
-		*tgUsersMap[msgJSON.ChatID].latestMsgSent = timestamp.Timestamp{Seconds: time.Now().Unix()}
+		msg.Ack()
 
 	}
 

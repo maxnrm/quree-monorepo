@@ -25,8 +25,10 @@ var NATS_MESSAGES_CONSUMER = getenvStr("NATS_MESSAGES_CONSUMER", "tg-messages-co
 var NATS_MESSAGES_SUBJECT = getenvStr("NATS_MESSAGES_SUBJECT", "messages.*")
 
 var RATE_LIMIT_GLOBAL = getenvInt("RATE_LIMIT_GLOBAL", 30)
+var RATE_LIMIT_BURST_GLOBAL = getenvInt("RATE_LIMIT_BURST_GLOBAL", 30)
+
 var RATE_LIMIT_PER_USER = getenvInt("RATE_LIMIT_PER_USER", 1)
-var RATE_LIMIT_BURST = getenvInt("RATE_LIMIT_BURST", 30)
+var RATE_LIMIT_BURST_PER_USER = getenvInt("RATE_LIMIT_BURST_PER_USER", 1)
 
 var ErrEnvVarEmpty = errors.New("getenv: environment variable empty")
 

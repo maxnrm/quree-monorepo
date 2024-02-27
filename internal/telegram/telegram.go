@@ -37,7 +37,7 @@ func Init(ctx context.Context) *TelegramClient {
 	}
 
 	limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_GLOBAL))
-	tg.limiter = rate.NewLimiter(limit, config.RATE_LIMIT_BURST)
+	tg.limiter = rate.NewLimiter(limit, config.RATE_LIMIT_BURST_GLOBAL)
 
 	tg.ctx = ctx
 
