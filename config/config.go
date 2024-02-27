@@ -19,11 +19,6 @@ var USER_WEBAPP_URL = getenvStr("USER_WEBAPP_URL", "")
 var ADMIN_WEBAPP_URL = getenvStr("ADMIN_WEBAPP_URL", "")
 var POSTGRES_CONN_STRING = getenvStr("POSTGRES_CONN_STRING", "")
 
-// UPDATES
-var NATS_UPDATES_STREAM = getenvStr("NATS_UPDATES_STREAM", "tg-updates")
-var NATS_UPDATES_CONSUMER = getenvStr("NATS_UPDATES_CONSUMER", "tg-updates-consumer")
-var NATS_UPDATES_SUBJECT = getenvStr("NATS_SUBJECT", "updates.*")
-
 // MESSAGES
 var NATS_MESSAGES_STREAM = getenvStr("NATS_MESSAGES_STREAM", "tg-messages")
 var NATS_MESSAGES_CONSUMER = getenvStr("NATS_MESSAGES_CONSUMER", "tg-messages-consumer")

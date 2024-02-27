@@ -2,6 +2,7 @@ package nats
 
 import (
 	"context"
+	"log"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -15,22 +16,37 @@ type NatsSettings struct {
 }
 
 type NatsClient struct {
-	Ctx      context.Context
-	NC       *nats.Conn
-	JS       jetstream.JetStream
-	Stream   jetstream.Stream
-	Consumer jetstream.Consumer
+	Ctx context.Context
+	NC  *nats.Conn
+	JS  jetstream.JetStream
 }
 
 func Init(settings NatsSettings) *NatsClient {
 	var natsClient NatsClient
 
+	natsClient.Ctx = settings.Ctx
+
 	natsClient.NC, _ = nats.Connect(settings.URL)
-	// defer natsClient.NC.Drain()
 
 	natsClient.JS, _ = jetstream.New(natsClient.NC)
-	natsClient.Stream, _ = natsClient.JS.Stream(settings.Ctx, settings.Stream)
-	natsClient.Consumer, _ = natsClient.Stream.Consumer(settings.Ctx, settings.Consumer)
 
 	return &natsClient
+}
+
+func (nc *NatsClient) CreateStream(streamConfig jetstream.StreamConfig) *jetstream.Stream {
+	s, err := nc.JS.CreateOrUpdateStream(nc.Ctx, streamConfig)
+	if err != nil {
+		log.Fatal("Error creating stream", err)
+	}
+
+	return &s
+}
+
+func (nc *NatsClient) CreateConsumer(stream string, consumerConfig jetstream.ConsumerConfig) jetstream.Consumer {
+	c, err := nc.JS.CreateOrUpdateConsumer(nc.Ctx, stream, consumerConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	return c
 }

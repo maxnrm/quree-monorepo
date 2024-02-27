@@ -16,9 +16,9 @@ type TelegramClient struct {
 }
 
 type Message struct {
-	Chat_ID   string `json:"chat_id"`
-	Text      string `json:"text"`
-	Bot_Token string `json:"bot_token"`
+	ChatID   string `json:"chat_id"`
+	Text     string `json:"text"`
+	BotToken string `json:"bot_token"`
 }
 
 func Init(ctx context.Context) *TelegramClient {
@@ -36,7 +36,7 @@ func Init(ctx context.Context) *TelegramClient {
 		Method: "POST",
 	}
 
-	limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_PER_USER))
+	limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_GLOBAL))
 	tg.limiter = rate.NewLimiter(limit, config.RATE_LIMIT_BURST)
 
 	tg.ctx = ctx
