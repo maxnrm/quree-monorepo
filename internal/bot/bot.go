@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"log"
 	"quree/config"
 	"time"
@@ -27,11 +28,12 @@ var userBotConfig = &botConfig{
 
 	commandHandlersMap: map[string]tele.HandlerFunc{
 		"/start": startHandler,
+		"/id":    idHandler,
 	},
 
 	middlewaresMap: &[]tele.MiddlewareFunc{
 		miniLogger(),
-		ensureLoginMiddleware(),
+		// ensureLoginMiddleware(),
 	},
 
 	menuButton: &tele.MenuButton{
@@ -51,11 +53,12 @@ var adminBotConfig = &botConfig{
 
 	commandHandlersMap: map[string]tele.HandlerFunc{
 		"/start": startHandler,
+		"/id":    idHandler,
 	},
 
 	middlewaresMap: &[]tele.MiddlewareFunc{
 		miniLogger(),
-		ensureLoginMiddleware(),
+		// ensureLoginMiddleware(),
 	},
 
 	menuButton: &tele.MenuButton{
@@ -96,16 +99,20 @@ func startHandler(c tele.Context) error {
 	return c.Send("Start!")
 }
 
-func ensureLoginMiddleware() tele.MiddlewareFunc {
-	return func(next tele.HandlerFunc) tele.HandlerFunc {
-		return func(c tele.Context) error {
-			if c.Sender().IsBot {
-				return nil
-			}
-			return c.Send("MW!")
-		}
-	}
+func idHandler(c tele.Context) error {
+	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
+
+// func ensureLoginMiddleware() tele.MiddlewareFunc {
+// 	return func(next tele.HandlerFunc) tele.HandlerFunc {
+// 		return func(c tele.Context) error {
+// 			if c.Sender().IsBot {
+// 				return nil
+// 			}
+// 			return c.Send("MW!")
+// 		}
+// 	}
+// }
 
 func miniLogger() tele.MiddlewareFunc {
 	l := log.Default()
