@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"quree/config"
@@ -75,14 +78,21 @@ func main() {
 
 	cons := nc.CreateConsumer(msgStreamConfig.Name, msgConsumerConfig)
 
-	mh := createConsumeHandler(nc.Ctx, &tgUsersMap)
+	mh := createConsumeHandler(&tgUsersMap)
 
 	wg.Add(1)
 	cons.Consume(mh)
 	wg.Wait()
+
+	defer nc.NC.Close()
+
+	// write graceful shutdown logic
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGTERM)
+	<-done
 }
 
-func createConsumeHandler(ctx context.Context, tgUsersMap *map[string]tgUser) jetstream.MessageHandler {
+func createConsumeHandler(tgUsersMap *map[string]tgUser) jetstream.MessageHandler {
 
 	return func(msg jetstream.Msg) {
 		var msgJSON telegram.Message
