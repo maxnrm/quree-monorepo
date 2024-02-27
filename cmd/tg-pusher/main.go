@@ -34,9 +34,9 @@ var msgStreamConfig = jetstream.StreamConfig{
 }
 
 var msgConsumerConfig = jetstream.ConsumerConfig{
-	Durable:       config.NATS_MESSAGES_CONSUMER,
-	AckWait:       2 * time.Second,
-	MaxAckPending: 1,
+	Durable: config.NATS_MESSAGES_CONSUMER,
+	AckWait: 2 * time.Second,
+	// MaxAckPending: 1,
 	MemoryStorage: true,
 }
 
