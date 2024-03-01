@@ -3,6 +3,7 @@ package pg
 import (
 	"fmt"
 	"quree/config"
+	"time"
 
 	"quree/internal/models"
 
@@ -38,15 +39,14 @@ func Init(connString string) *pg {
 // function to create user
 func (pg *pg) CreateUser(user *models.User) {
 
-	roleStr := string(role)
+	pg.q.User.Create(&dbmodels.User{
+		ChatID:      user.ChatID,
+		PhoneNumber: &user.PhoneNumber,
+		DateCreated: time.Now(),
+		Role:        string(user.Role),
+		QrCode:      string(user.QRCode),
+	})
 
-	user := dbmodels.User{
-		ChatID:      &chatID,
-		PhoneNumber: phone_number,
-		Role:        &roleStr,
-	}
-
-	pg.q.User.Create(&user)
 }
 
 func (pg *pg) Close() {
