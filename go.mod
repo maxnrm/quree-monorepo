@@ -4,6 +4,7 @@ go 1.21.6
 
 require (
 	github.com/golang/protobuf v1.5.2
+	github.com/google/uuid v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/monaco-io/request v1.0.16
 	github.com/nats-io/nats.go v1.33.1

@@ -14,6 +14,12 @@ type User struct {
 	QRCode      UUID           `json:"qr_code"`
 }
 
+// convert User to str
+
+func (u *User) String() string {
+	return u.ChatID
+}
+
 type Message struct {
 	Content string            `json:"content"`
 	Image   UUID              `json:"image"`
