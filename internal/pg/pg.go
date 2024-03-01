@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"quree/config"
 
-	"quree/internal/models/enums"
+	"quree/internal/models"
+
 	"quree/internal/pg/dbmodels"
 	"quree/internal/pg/dbquery"
 
@@ -35,7 +36,7 @@ func Init(connString string) *pg {
 }
 
 // function to create user
-func (pg *pg) CreateUser(chatID string, phone_number *string, role enums.UserRole, profilePic *string, qrCode *string) {
+func (pg *pg) CreateUser(user *models.User) {
 
 	roleStr := string(role)
 

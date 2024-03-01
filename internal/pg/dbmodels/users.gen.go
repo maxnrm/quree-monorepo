@@ -14,10 +14,10 @@ const TableNameUser = "users"
 type User struct {
 	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
-	QrCode      *string   `gorm:"column:qr_code;type:uuid" json:"qr_code"`
-	Role        *string   `gorm:"column:role;type:character varying(255);default:USER" json:"role"`
-	ChatID      *string   `gorm:"column:chat_id;type:character varying(255)" json:"chat_id"`
-	PhoneNumber *string   `gorm:"column:phone_number;type:character varying(255)" json:"phone_number"`
+	QrCode      string    `gorm:"column:qr_code;type:uuid;not null" json:"qr_code"`
+	Role        string    `gorm:"column:role;type:character varying(255);not null;default:USER" json:"role"`
+	ChatID      string    `gorm:"column:chat_id;type:character varying(255);not null;default:NULL" json:"chat_id"`
+	PhoneNumber *string   `gorm:"column:phone_number;type:character varying(255);default:NULL" json:"phone_number"`
 }
 
 // TableName User's table name
