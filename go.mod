@@ -10,6 +10,7 @@ require (
 	golang.org/x/time v0.5.0
 	gopkg.in/telebot.v3 v3.2.1
 	gorm.io/gen v0.3.25
+	gorm.io/plugin/dbresolver v1.5.0
 )
 
 require (
@@ -23,7 +24,6 @@ require (
 	gorm.io/datatypes v1.1.1-0.20230130040222-c43177d3cf8c // indirect
 	gorm.io/driver/mysql v1.5.2 // indirect
 	gorm.io/hints v1.1.0 // indirect
-	gorm.io/plugin/dbresolver v1.5.0 // indirect
 )
 
 require (
