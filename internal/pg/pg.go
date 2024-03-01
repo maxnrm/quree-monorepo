@@ -1,10 +1,12 @@
 package pg
 
 import (
+	"errors"
 	"fmt"
 	"quree/config"
 	"time"
 
+	"quree/internal/helpers"
 	"quree/internal/models"
 
 	"quree/internal/pg/dbmodels"
@@ -12,6 +14,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type pg struct {
@@ -37,9 +40,9 @@ func Init(connString string) *pg {
 }
 
 // function to create user
-func (pg *pg) CreateUser(user *models.User) {
+func (pg *pg) CreateUser(user *models.User) error {
 
-	pg.q.User.Create(&dbmodels.User{
+	result := pg.Clauses(clause.OnConflict{DoNothing: true}).Create(&dbmodels.User{
 		ChatID:      user.ChatID,
 		PhoneNumber: &user.PhoneNumber,
 		DateCreated: time.Now(),
@@ -47,6 +50,26 @@ func (pg *pg) CreateUser(user *models.User) {
 		QrCode:      string(user.QRCode),
 	})
 
+	return result.Error
+}
+
+// function to get user from db using ChatID, transform in models.User struct and return
+
+func (pg *pg) GetUserByChatID(chatID int64) *models.User {
+
+	var user dbmodels.User
+	result := pg.Where("chat_id = ?", chatID).First(&user)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	return &models.User{
+		ChatID:      user.ChatID,
+		PhoneNumber: *user.PhoneNumber,
+		Role:        helpers.StringToUserRole(user.Role),
+		QRCode:      models.UUID(user.QrCode),
+	}
 }
 
 func (pg *pg) Close() {
