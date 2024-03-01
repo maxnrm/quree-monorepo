@@ -9,13 +9,21 @@ require (
 	github.com/nats-io/nats.go v1.33.1
 	golang.org/x/time v0.5.0
 	gopkg.in/telebot.v3 v3.2.1
+	gorm.io/gen v0.3.25
 )
 
 require (
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.4.3 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
+	gorm.io/datatypes v1.1.1-0.20230130040222-c43177d3cf8c // indirect
+	gorm.io/driver/mysql v1.5.2 // indirect
+	gorm.io/hints v1.1.0 // indirect
+	gorm.io/plugin/dbresolver v1.5.0 // indirect
 )
 
 require (
