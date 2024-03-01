@@ -15,12 +15,12 @@ const dsn = "postgres://quree:qureequree@127.0.0.1:5432/quree"
 func main() {
 	// Initialize the generator with configuration
 	g := gen.NewGenerator(gen.Config{
-		OutPath:           "./internal/pg/query", // output directory, default value is ./query
+		OutPath:           "./internal/pg/dbquery", // output directory, default value is ./query
 		Mode:              gen.WithDefaultQuery | gen.WithQueryInterface | gen.WithoutContext,
 		FieldNullable:     true,
 		FieldWithIndexTag: true,
 		FieldWithTypeTag:  true,
-		ModelPkgPath:      "models",
+		ModelPkgPath:      "dbmodels",
 	})
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -39,7 +39,9 @@ func main() {
 
 	g.ApplyBasic(
 		g.GenerateModelAs("users", "User"),
-		g.GenerateModelAs("directus_files", "Files"),
+		g.GenerateModelAs("messages", "Message"),
+		g.GenerateModelAs("user_event_visits", "UserEventVisit"),
+		g.GenerateModelAs("directus_files", "File"),
 	)
 
 	// Execute the generator

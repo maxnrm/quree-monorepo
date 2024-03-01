@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"quree/config"
 
-	"quree/internal/pg/enums"
-	"quree/internal/pg/models"
-	"quree/internal/pg/query"
+	"quree/internal/models/enums"
+	"quree/internal/pg/dbmodels"
+	"quree/internal/pg/dbquery"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -14,7 +14,7 @@ import (
 
 type pg struct {
 	*gorm.DB
-	q *query.Query
+	q *dbquery.Query
 }
 
 var DB = Init(config.POSTGRES_CONN_STRING)
@@ -28,7 +28,7 @@ func Init(connString string) *pg {
 
 	var pg *pg = &pg{
 		DB: db,
-		q:  query.Use(db),
+		q:  dbquery.Use(db),
 	}
 
 	return pg
@@ -39,7 +39,7 @@ func (pg *pg) CreateUser(chatID string, phone_number *string, role enums.UserRol
 
 	roleStr := string(role)
 
-	user := models.User{
+	user := dbmodels.User{
 		ChatID:      &chatID,
 		PhoneNumber: phone_number,
 		Role:        &roleStr,

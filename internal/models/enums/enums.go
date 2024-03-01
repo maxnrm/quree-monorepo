@@ -1,7 +1,5 @@
 package enums
 
-// create idiomatic golang enums for User.Role
-// values could be ADMIN and USER
 type UserRole string
 type MessageType string
 type EventType string
