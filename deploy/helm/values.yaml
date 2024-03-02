@@ -97,6 +97,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-envs:
-  IMGPROXY_INTERNAL_URL: http://imgproxy-imgproxy.imgproxy.svc:80/_/plain/s3://quree
