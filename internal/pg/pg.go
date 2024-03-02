@@ -8,6 +8,7 @@ import (
 
 	"quree/internal/helpers"
 	"quree/internal/models"
+	"quree/internal/models/enums"
 
 	"quree/internal/pg/dbmodels"
 	"quree/internal/pg/dbquery"
@@ -56,7 +57,6 @@ func (pg *pg) CreateUser(user *models.User) error {
 }
 
 // function to get user from db using ChatID, transform in models.User struct and return
-
 func (pg *pg) GetUserByChatID(chatID string) *models.User {
 
 	var user dbmodels.User
@@ -79,6 +79,99 @@ func (pg *pg) GetUserByChatID(chatID string) *models.User {
 		Role:        helpers.StringToUserRole(user.Role),
 		QRCode:      models.UUID(user.QrCode),
 	}
+}
+
+// function to UploadFile in s3 and create record in db in table Files
+
+func (pg *pg) CreateFileRecord(file *models.File) error {
+
+	result := pg.Create(&dbmodels.File{
+		ID:               string(file.ID),
+		Storage:          "s3",
+		FilenameDownload: file.Filename,
+		Title:            &file.Title,
+		Type:             &file.Type,
+		UploadedOn:       time.Now(),
+	})
+
+	return result.Error
+}
+
+// get file by id
+func (pg *pg) GetFileRecordByID(id models.UUID) *models.File {
+
+	var file dbmodels.File
+	result := pg.Where("id = ?", id).First(&file)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	var title, ftype string
+	if file.Title != nil {
+		title = *file.Title
+	} else {
+		title = ""
+	}
+
+	if file.Type != nil {
+		ftype = *file.Type
+	} else {
+		ftype = ""
+	}
+
+	return &models.File{
+		ID:       models.UUID(file.ID),
+		Filename: file.FilenameDownload,
+		Title:    title,
+		Type:     ftype,
+	}
+}
+
+// function to get messages by type
+
+func (pg *pg) GetMessagesByType(messageType enums.MessageType) []models.Message {
+
+	var messages []dbmodels.Message
+	result := pg.Where("type = ?", messageType).Find(&messages)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	var msgs []models.Message
+	for _, message := range messages {
+
+		var messageContent, messageImage string
+		var messageSort int32
+
+		if message.Content != nil {
+			messageContent = *message.Content
+		} else {
+			messageContent = ""
+		}
+
+		if message.Image != nil {
+			messageImage = *message.Image
+		} else {
+			messageImage = ""
+		}
+
+		if message.Sort != nil {
+			messageSort = *message.Sort
+		} else {
+			messageSort = 0
+		}
+
+		msgs = append(msgs, models.Message{
+			Content: messageContent,
+			Image:   models.UUID(messageImage),
+			Type:    messageType,
+			Sort:    messageSort,
+		})
+	}
+
+	return msgs
 }
 
 func (pg *pg) Close() {
