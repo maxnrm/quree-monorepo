@@ -7,8 +7,8 @@ server {
         index  index.html index.htm;
     }
 
-    location /api/webhook {
-        proxy_pass https://webhook.site/6b64a6e2-c303-4427-b95f-24af5afa36b0;
+    location /images {
+        proxy_pass $IMGPROXY_BASE_URL;
     }
 
     error_page   500 502 503 504  /50x.html;
