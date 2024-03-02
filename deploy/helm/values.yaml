@@ -99,4 +99,4 @@ tolerations: []
 affinity: {}
 
 envs:
-  IMGPROXY_INTERNAL_URL: https://imgproxy-imgproxy.imgproxy.svc:80/_/plain/s3://quree
+  IMGPROXY_INTERNAL_URL: http://imgproxy-imgproxy.imgproxy.svc:80/_/plain/s3://quree
