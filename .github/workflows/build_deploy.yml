@@ -52,4 +52,7 @@ jobs:
           version: "v3.13.3"
 
       - name: Upgrade quree
-        run: helm --kubeconfig config.yaml upgrade quree-scan-miniapp -n quree-scan-miniapp deploy/helm --set image.tag=${{ env.RELEASE_VERSION }}
+        run: |
+          helm --kubeconfig config.yaml upgrade quree-scan-miniapp -n quree-scan-miniapp deploy/helm \
+          --set image.tag=${{ env.RELEASE_VERSION }} \
+          --set envs.IMGPROXY_BASE_URL=${{ secrets.IMGPROXY_INTERNAL_URL }}

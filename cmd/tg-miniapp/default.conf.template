@@ -8,7 +8,7 @@ server {
     }
 
     location /images {
-        proxy_pass $IMGPROXY_BASE_URL;
+        proxy_pass $IMGPROXY_INTERNAL_URL;
     }
 
     error_page   500 502 503 504  /50x.html;
