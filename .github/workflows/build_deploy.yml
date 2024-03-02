@@ -52,4 +52,4 @@ jobs:
           version: "v3.13.3"
 
       - name: Upgrade quree
-        run: helm --kubeconfig config.yaml upgrade quree-scan-miniapp -n quree-scan-miniapp helm --set image.tag=${{ env.RELEASE_VERSION }}
+        run: helm --kubeconfig config.yaml upgrade quree-scan-miniapp -n quree-scan-miniapp deploy/helm --set image.tag=${{ env.RELEASE_VERSION }}
