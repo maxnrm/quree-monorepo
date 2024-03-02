@@ -55,4 +55,4 @@ jobs:
         run: |
           helm --kubeconfig config.yaml upgrade quree -n quree deploy/helm \
           --set image.tag=${{ env.RELEASE_VERSION }} \
-          --set envs.IMGPROXY_BASE_URL=${{ secrets.IMGPROXY_INTERNAL_URL }}
+          --set envs.IMGPROXY_INTERNAL_URL=${{ secrets.IMGPROXY_INTERNAL_URL }}
