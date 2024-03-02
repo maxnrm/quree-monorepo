@@ -1,4 +1,4 @@
-# Default values for quree-scan-miniapp.
+# Default values for quree.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,12 +7,12 @@ replicaCount: 1
 image:
   repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-scan-miniapp
   pullPolicy: IfNotPresent
-  tag: "0.0.0"
+  tag: "v1"
 
 imagePullSecrets:
   - name: quree-cr-creds
 
-nameOverride: "quree-scan-miniapp"
+nameOverride: "quree"
 fullnameOverride: ""
 
 serviceAccount:
@@ -97,3 +97,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+envs:
+  IMGPROXY_INTERNAL_URL: https://imgproxy-imgproxy.imgproxy.svc:80/_/plain/s3://quree
