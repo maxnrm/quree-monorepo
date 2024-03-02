@@ -30,6 +30,10 @@ var RATE_LIMIT_BURST_GLOBAL = getenvInt("RATE_LIMIT_BURST_GLOBAL", 30)
 var RATE_LIMIT_PER_USER = getenvInt("RATE_LIMIT_PER_USER", 1)
 var RATE_LIMIT_BURST_PER_USER = getenvInt("RATE_LIMIT_BURST_PER_USER", 1)
 
+// IMGPROXY
+var IMGPROXY_INTERNAL_URL = getenvStr("IMGPROXY_INTERNAL_URL", "http://localhost:8080")
+var IMGPROXY_PUBLIC_URL = getenvStr("IMGPROXY_PUBLIC_URL", "http://localhost:8080")
+
 var ErrEnvVarEmpty = errors.New("getenv: environment variable empty")
 
 func getenvStr(key string, defaultValue string) string {
