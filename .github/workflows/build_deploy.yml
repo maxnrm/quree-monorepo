@@ -2,7 +2,7 @@ name: Build quree-scan-miniapp with nginx
 
 on:
   push:
-    tags: ['\d+.\d+.\d+']
+    tags: ['v\d+']
 
 jobs:
   build:
