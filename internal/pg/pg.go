@@ -122,7 +122,7 @@ func (pg *pg) GetFileRecordByID(id models.UUID) *models.File {
 
 	return &models.File{
 		ID:       models.UUID(file.ID),
-		Filename: file.FilenameDownload,
+		Filename: *file.FilenameDisk,
 		Title:    title,
 		Type:     ftype,
 	}

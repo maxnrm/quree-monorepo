@@ -7,6 +7,7 @@ import (
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/pg"
+	"sort"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
@@ -106,13 +107,20 @@ func startHandler(c tele.Context) error {
 
 	msgs := db.GetMessagesByType(enums.START)
 
+	sort.Slice(msgs, func(i, j int) bool {
+		return msgs[i].Sort < msgs[j].Sort
+	})
+
 	for _, m := range msgs {
 		if m.Content != "" {
 			c.Send(m.Content)
+		} else if m.Image != "" {
+			file := db.GetFileRecordByID(m.Image)
+			c.Send(&tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + file.Filename)})
 		}
 	}
 
-	return c.Send("Start!")
+	return nil
 }
 
 func idHandler(c tele.Context) error {
