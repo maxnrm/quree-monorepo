@@ -31,6 +31,7 @@ jobs:
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
           tag: ${{ env.RELEASE_VERSION }}
           tag_with_latest: true
+          build_file: ./build/tg-miniapp/Dockerfile
 
   deploy:
     needs: [build]

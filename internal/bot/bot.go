@@ -103,6 +103,15 @@ func Init(c *botConfig) *tele.Bot {
 }
 
 func startHandler(c tele.Context) error {
+
+	msgs := db.GetMessagesByType(enums.START)
+
+	for _, m := range msgs {
+		if m.Content != "" {
+			c.Send(m.Content)
+		}
+	}
+
 	return c.Send("Start!")
 }
 
