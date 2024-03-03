@@ -50,7 +50,7 @@ func (pg *pg) CreateUser(user *models.User) error {
 		PhoneNumber: &user.PhoneNumber,
 		DateCreated: time.Now(),
 		Role:        string(user.Role),
-		QrCode:      string("f5a879d4-147d-4740-a4e8-b8bb8f5a791c"),
+		QrCode:      string(user.QRCode),
 	})
 
 	return result.Error
@@ -83,16 +83,9 @@ func (pg *pg) GetUserByChatID(chatID string) *models.User {
 
 // function to UploadFile in s3 and create record in db in table Files
 
-func (pg *pg) CreateFileRecord(file *models.File) error {
+func (pg *pg) CreateFileRecord(file *dbmodels.File) error {
 
-	result := pg.Create(&dbmodels.File{
-		ID:               string(file.ID),
-		Storage:          "s3",
-		FilenameDownload: file.Filename,
-		Title:            &file.Title,
-		Type:             &file.Type,
-		UploadedOn:       time.Now(),
-	})
+	result := pg.Create(file)
 
 	return result.Error
 }

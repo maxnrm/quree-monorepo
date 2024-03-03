@@ -24,6 +24,7 @@ var BotConfig = &bot.BotConfig{
 		"/start":    startHandler,
 		"/id":       idHandler,
 		"/register": registerHandler,
+		"/qr":       qrHandler,
 	},
 
 	MiddlewaresMap: &[]tele.MiddlewareFunc{

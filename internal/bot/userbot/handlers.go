@@ -1,14 +1,20 @@
 package userbot
 
 import (
+	"bytes"
 	"fmt"
 	"quree/internal/models"
 	"quree/internal/models/enums"
+	"quree/internal/pg/dbmodels"
+	"quree/internal/s3"
 	"sort"
 
 	"quree/internal/pg"
 
 	tele "gopkg.in/telebot.v3"
+
+	"github.com/google/uuid"
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 var db = pg.DB
@@ -45,18 +51,83 @@ func idHandler(c tele.Context) error {
 	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
+func qrHandler(c tele.Context) error {
+	chatID := fmt.Sprint(c.Chat().ID)
+	user := db.GetUserByChatID(chatID)
+
+	file := db.GetFileRecordByID(user.QRCode)
+	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
+		Content: "Your QRCode",
+	}, file)
+
+	return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+}
+
 func registerHandler(c tele.Context) error {
 
-	err := db.CreateUser(&models.User{
-		ChatID:      fmt.Sprint(c.Chat().ID),
-		PhoneNumber: "test",
-		Role:        enums.USER,
-		QRCode:      "53c0d5b2-3b92-4630-ba4a-58721f0df1f5",
+	chatID := fmt.Sprint(c.Chat().ID)
+
+	user := db.GetUserByChatID(chatID)
+	if user != nil {
+		sm := models.CreateSendableMessage(SendLimiter, &models.Message{
+			Content: "You are already registered!",
+		}, nil)
+
+		return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+	}
+
+	qrCodeUUID := uuid.New().String()
+	qrCodeWidth := int32(256)
+	qrCodeHeight := qrCodeWidth
+
+	png, err := qrcode.Encode(fmt.Sprintf("%s %s", chatID, qrCodeUUID), qrcode.Medium, int(qrCodeWidth))
+	if err != nil {
+		return err
+	}
+
+	qrCodeBytesReader := bytes.NewReader(png)
+	qrCodeSize := qrCodeBytesReader.Size()
+
+	filenameDisk := fmt.Sprintf("%s.png", qrCodeUUID)
+	filenameDownload := fmt.Sprintf("%s.png", chatID)
+	fileType := "image/png"
+
+	info, err := s3.S3Client.UploadImage(filenameDisk, qrCodeBytesReader, qrCodeSize)
+	if err != nil {
+		return err
+	}
+
+	err = db.CreateFileRecord(&dbmodels.File{
+		Storage:          "s3",
+		ID:               qrCodeUUID,
+		Title:            &chatID,
+		FilenameDisk:     &filenameDisk,
+		FilenameDownload: filenameDownload,
+		UploadedOn:       info.LastModified,
+		Filesize:         &qrCodeSize,
+		Width:            &qrCodeWidth,
+		Height:           &qrCodeHeight,
+		Type:             &fileType,
 	})
 
 	if err != nil {
 		return c.Send(err.Error())
 	}
 
-	return c.Send("Register!")
+	err = db.CreateUser(&models.User{
+		ChatID:      fmt.Sprint(c.Chat().ID),
+		PhoneNumber: "test",
+		Role:        enums.USER,
+		QRCode:      models.UUID(qrCodeUUID),
+	})
+
+	if err != nil {
+		return c.Send(err.Error())
+	}
+
+	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
+		Content: "Registered!",
+	}, nil)
+
+	return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
 }

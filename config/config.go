@@ -34,6 +34,11 @@ var RATE_LIMIT_BURST_USER = getenvInt("RATE_LIMIT_BURST_USER", 1)
 var IMGPROXY_INTERNAL_URL = getenvStr("IMGPROXY_INTERNAL_URL", "http://localhost:8080")
 var IMGPROXY_PUBLIC_URL = getenvStr("IMGPROXY_PUBLIC_URL", "http://localhost:8080")
 
+var S3_ENDPOINT = getenvStr("S3_ENDPOINT", "http://localhost:9000")
+var S3_BUCKET = getenvStr("S3_BUCKET", "")
+var S3_ACCESS_KEY = getenvStr("S3_ACCESS_KEY", "")
+var S3_SECRET_KEY = getenvStr("S3_SECRET_KEY", "")
+
 var ErrEnvVarEmpty = errors.New("getenv: environment variable empty")
 
 func getenvStr(key string, defaultValue string) string {
