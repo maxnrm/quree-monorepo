@@ -27,6 +27,15 @@ type Message struct {
 	Group   int               `json:"group"`
 }
 
+type MessageWithRecipient struct {
+	Message
+	ChatID string `json:"chat_id"`
+}
+
+func (m MessageWithRecipient) Recipient() string {
+	return m.ChatID
+}
+
 type UserEventVisit struct {
 	UserID  UUID            `json:"user_id"`
 	AdminID UUID            `json:"admin_id,omitempty"`
