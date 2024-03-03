@@ -24,6 +24,7 @@ type Message struct {
 	Image   UUID              `json:"image"`
 	Type    enums.MessageType `json:"type"`
 	Sort    int32             `json:"sort"`
+	Group   int               `json:"group"`
 }
 
 type UserEventVisit struct {
