@@ -73,6 +73,20 @@ func (pg *pg) CreateUser(user *models.User) error {
 
 }
 
+func (pg *pg) GetUserIDByChatIDAndRole(chatID string, role enums.UserRole) (models.UUID, error) {
+
+	var user dbmodels.User
+	// get user by chatID and Role
+	result := pg.Where("chat_id = ? AND role = ?", chatID, string(role)).First(&user)
+
+	if result.Error != nil {
+		return "", result.Error
+	}
+
+	return models.UUID(user.ID), nil
+
+}
+
 // function to get user from db using ChatID, transform in models.User struct and return
 func (pg *pg) GetUserByChatIDAndRole(chatID string, role enums.UserRole) *models.User {
 

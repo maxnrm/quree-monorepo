@@ -2,6 +2,7 @@ package userbot
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"quree/internal/models"
@@ -82,7 +83,19 @@ func registerHandler(c tele.Context) error {
 	qrCodeWidth := int32(256)
 	qrCodeHeight := qrCodeWidth
 
-	png, err := qrcode.Encode(fmt.Sprintf("%s %s", chatID, qrCodeUUID), qrcode.Medium, int(qrCodeWidth))
+	qrCodeMessage := &models.QRCodeMessage{
+		ChatID:   chatID,
+		QRCodeID: models.UUID(qrCodeUUID),
+	}
+
+	qrCodeMessageJSON, err := json.Marshal(qrCodeMessage)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(qrCodeMessageJSON))
+
+	png, err := qrcode.Encode(string(qrCodeMessageJSON), qrcode.Medium, int(qrCodeWidth))
 	if err != nil {
 		return err
 	}
