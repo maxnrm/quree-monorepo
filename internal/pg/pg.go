@@ -6,7 +6,6 @@ import (
 	"quree/config"
 	"time"
 
-	"quree/internal/helpers"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 
@@ -44,45 +43,69 @@ func Init(connString string) *pg {
 // function to create user
 func (pg *pg) CreateUser(user *models.User) error {
 
-	result := pg.Create(&dbmodels.User{
-		ID:          uuid.New().String(),
-		ChatID:      user.ChatID,
-		PhoneNumber: &user.PhoneNumber,
-		DateCreated: time.Now(),
-		Role:        string(user.Role),
-		QrCode:      string(user.QRCode),
-	})
+	var result *gorm.DB
+
+	if user.Role == enums.ADMIN {
+		result = pg.Create(&dbmodels.User{
+			ID:          uuid.New().String(),
+			ChatID:      &user.ChatID,
+			PhoneNumber: &user.PhoneNumber,
+			DateCreated: time.Now(),
+			Role:        string(user.Role),
+			QrCode:      nil,
+		})
+
+	} else if user.Role == enums.USER {
+		qrCodeStr := string(user.QRCode)
+
+		result = pg.Create(&dbmodels.User{
+			ID:          uuid.New().String(),
+			ChatID:      &user.ChatID,
+			PhoneNumber: &user.PhoneNumber,
+			DateCreated: time.Now(),
+			Role:        string(user.Role),
+			QrCode:      &qrCodeStr,
+		})
+	}
 
 	return result.Error
+
 }
 
 // function to get user from db using ChatID, transform in models.User struct and return
-func (pg *pg) GetUserByChatID(chatID string) *models.User {
+func (pg *pg) GetUserByChatIDAndRole(chatID string, role enums.UserRole) *models.User {
 
 	var user dbmodels.User
-	result := pg.Where("chat_id = ?", chatID).First(&user)
+	// get user by chatID and Role
+	result := pg.Where("chat_id = ? AND role = ?", chatID, string(role)).First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
 
-	var pn string
-	if user.PhoneNumber != nil {
-		pn = *user.PhoneNumber
+	var userQRCode string
+	if user.QrCode == nil {
+		userQRCode = ""
 	} else {
-		pn = ""
+		userQRCode = *user.QrCode
+	}
+
+	var phoneNumber string
+	if user.PhoneNumber == nil {
+		phoneNumber = ""
+	} else {
+		phoneNumber = *user.PhoneNumber
 	}
 
 	return &models.User{
-		ChatID:      user.ChatID,
-		PhoneNumber: pn,
-		Role:        helpers.StringToUserRole(user.Role),
-		QRCode:      models.UUID(user.QrCode),
+		ChatID:      *user.ChatID,
+		PhoneNumber: phoneNumber,
+		Role:        enums.UserRole(user.Role),
+		QRCode:      models.UUID(userQRCode),
 	}
 }
 
 // function to UploadFile in s3 and create record in db in table Files
-
 func (pg *pg) CreateFileRecord(file *dbmodels.File) error {
 
 	result := pg.Create(file)
@@ -122,7 +145,6 @@ func (pg *pg) GetFileRecordByID(id models.UUID) *models.File {
 }
 
 // function to get messages by type
-
 func (pg *pg) GetMessagesByType(messageType enums.MessageType) []models.Message {
 
 	var messages []dbmodels.Message

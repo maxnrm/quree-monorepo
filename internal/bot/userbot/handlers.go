@@ -53,7 +53,7 @@ func idHandler(c tele.Context) error {
 
 func qrHandler(c tele.Context) error {
 	chatID := fmt.Sprint(c.Chat().ID)
-	user := db.GetUserByChatID(chatID)
+	user := db.GetUserByChatIDAndRole(chatID, enums.USER)
 
 	file := db.GetFileRecordByID(user.QRCode)
 	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
@@ -67,10 +67,11 @@ func registerHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
 
-	user := db.GetUserByChatID(chatID)
+	user := db.GetUserByChatIDAndRole(chatID, enums.USER)
+
 	if user != nil {
 		sm := models.CreateSendableMessage(SendLimiter, &models.Message{
-			Content: "You are already registered!",
+			Content: "Вы уже зарегистрированы!",
 		}, nil)
 
 		return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})

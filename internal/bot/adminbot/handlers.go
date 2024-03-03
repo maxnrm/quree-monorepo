@@ -21,8 +21,8 @@ func idHandler(c tele.Context) error {
 func registerHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
+	user := db.GetUserByChatIDAndRole(chatID, enums.ADMIN)
 
-	user := db.GetUserByChatID(chatID)
 	if user != nil {
 		sm := models.CreateSendableMessage(SendLimiter, &models.Message{
 			Content: "Вы уже зарегистрированы!",
@@ -33,7 +33,7 @@ func registerHandler(c tele.Context) error {
 
 	err := db.CreateUser(&models.User{
 		ChatID:      fmt.Sprint(c.Chat().ID),
-		PhoneNumber: "test",
+		PhoneNumber: "",
 		Role:        enums.ADMIN,
 	})
 
@@ -58,8 +58,9 @@ func CheckAuthorize() tele.MiddlewareFunc {
 			}
 
 			chatID := fmt.Sprint(c.Chat().ID)
-			user := db.GetUserByChatID(chatID)
-			if user == nil || user.Role != enums.ADMIN {
+			user := db.GetUserByChatIDAndRole(chatID, enums.ADMIN)
+
+			if user == nil {
 				sm := models.CreateSendableMessage(SendLimiter, &models.Message{
 					Content: "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора.",
 				}, nil)

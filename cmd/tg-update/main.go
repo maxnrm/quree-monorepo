@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"quree/config"
 	"quree/internal/bot/adminbot"
 	"quree/internal/bot/userbot"
 	"sync"
@@ -14,15 +13,19 @@ var adminBot = adminbot.Bot
 
 func main() {
 
-	fmt.Println("test")
-	fmt.Println(config.ADMIN_AUTH_CODE)
 	wg.Add(4)
 
 	go userBot.Start()
+	defer userBot.Stop()
 	go userbot.SendLimiter.RemoveOldUserRateLimitersCache()
 
 	go adminBot.Start()
+	defer adminBot.Stop()
+
 	go adminbot.SendLimiter.RemoveOldUserRateLimitersCache()
 
+	fmt.Println("Bots started...")
+
 	wg.Wait()
+
 }
