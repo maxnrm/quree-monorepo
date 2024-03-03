@@ -1,12 +1,18 @@
 package userbot
 
 import (
+	"context"
 	"quree/config"
 	"quree/internal/bot"
+	"quree/internal/sendlimiter"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
 )
+
+var ctx = context.Background()
+var Bot *tele.Bot = bot.Init(BotConfig)
+var SendLimiter = sendlimiter.Init(ctx)
 
 var BotConfig = &bot.BotConfig{
 	Settings: &tele.Settings{

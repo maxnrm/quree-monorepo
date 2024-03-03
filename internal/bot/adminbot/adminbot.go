@@ -9,6 +9,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
+var Bot *tele.Bot = bot.Init(BotConfig)
+
 var BotConfig = &bot.BotConfig{
 	Settings: &tele.Settings{
 		Token:  config.ADMIN_BOT_TOKEN,

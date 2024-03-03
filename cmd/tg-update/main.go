@@ -1,20 +1,20 @@
 package main
 
 import (
-	"quree/internal/bot"
 	"quree/internal/bot/adminbot"
 	"quree/internal/bot/userbot"
 	"sync"
 )
 
 var wg sync.WaitGroup
-var userBot = bot.Init(userbot.BotConfig)
-var adminBot = bot.Init(adminbot.BotConfig)
+var userBot = userbot.Bot
+var adminBot = adminbot.Bot
 
 func main() {
-	wg.Add(2)
+	wg.Add(3)
 
 	go userBot.Start()
+	go userbot.SendLimiter.RemoveOldUserRateLimitersCache()
 
 	go adminBot.Start()
 

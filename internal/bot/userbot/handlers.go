@@ -22,13 +22,22 @@ func startHandler(c tele.Context) error {
 		return msgs[i].Sort < msgs[j].Sort
 	})
 
+	var what interface{}
+
 	for _, m := range msgs {
-		if m.Content != "" {
-			c.Send(m.Content)
+
+		if m.Content != "" && m.Image != "" {
+			file := db.GetFileRecordByID(m.Image)
+			what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + file.Filename), Caption: m.Content}
+		} else if m.Content != "" {
+			what = m.Content
 		} else if m.Image != "" {
 			file := db.GetFileRecordByID(m.Image)
-			c.Send(&tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + file.Filename)})
+			what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + file.Filename)}
 		}
+
+		SendLimiter.LimitSend(c, fmt.Sprint(c.Chat().ID), what)
+		c.Bot().Send(c.Chat(), what)
 	}
 
 	return nil
