@@ -64,6 +64,6 @@ func (sl *SendLimiter) RemoveOldUserRateLimitersCache() {
 				sl.removeUserRateLimiter(k)
 			}
 		}
-		fmt.Println("Clearing rate limit cache: ", sl.UserRateLimitersCache)
+		fmt.Println("Clearing rate limit cache, items:", len(sl.UserRateLimitersCache))
 	}
 }

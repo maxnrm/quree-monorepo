@@ -24,15 +24,13 @@ func Init(c *BotConfig) *tele.Bot {
 		log.Fatal(err)
 	}
 
-	for c, h := range c.CommandHandlersMap {
-		b.Handle(c, h)
-	}
-
 	for _, m := range *c.MiddlewaresMap {
 		b.Use(m)
 	}
 
-	go c.SendLimiter.RemoveOldUserRateLimitersCache()
+	for c, h := range c.CommandHandlersMap {
+		b.Handle(c, h)
+	}
 
 	return b
 }
