@@ -3,6 +3,7 @@
 package webserver
 
 import (
+	"encoding/json"
 	"fmt"
 	"quree/internal/models"
 	"quree/internal/pg"
@@ -32,15 +33,17 @@ func CreateUserEventVisit(c *gin.Context) {
 
 	var visit models.UserEventVisit
 
-	err := c.BindJSON(visit)
+	err := c.BindJSON(&visit)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "bad request"})
 		return
 	}
 
-	db.CreateUserEventVisit(visit)
+	data, _ := json.Marshal(visit)
 
-	// response code 201 created
+	fmt.Println(string(data))
+
+	db.CreateUserEventVisit(&visit)
 
 	c.JSON(201, gin.H{"status": "created"})
 }

@@ -2,7 +2,6 @@ package models
 
 import (
 	"quree/internal/models/enums"
-	"time"
 )
 
 type UUID string
@@ -28,11 +27,10 @@ type Message struct {
 }
 
 type UserEventVisit struct {
-	CreatedAt time.Time       `json:"created_at"`
-	UserID    UUID            `json:"user_id"`
-	AdminID   UUID            `json:"admin_id,omitempty"`
-	QuizID    UUID            `json:"quiz_id,omitempty"`
-	Type      enums.EventType `json:"type"`
+	UserID  UUID            `json:"user_id"`
+	AdminID UUID            `json:"admin_id,omitempty"`
+	QuizID  UUID            `json:"quiz_id,omitempty"`
+	Type    enums.EventType `json:"type"`
 }
 
 type File struct {

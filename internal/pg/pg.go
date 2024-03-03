@@ -6,6 +6,7 @@ import (
 	"quree/config"
 	"time"
 
+	"quree/internal/helpers"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 
@@ -189,18 +190,15 @@ func (pg *pg) GetMessagesByType(messageType enums.MessageType) []models.Message 
 	return msgs
 }
 
-func (pg *pg) CreateUserEventVisit(visit models.UserEventVisit) error {
-
-	visitAdminID := string(visit.AdminID)
-	visitQuizID := string(visit.QuizID)
+func (pg *pg) CreateUserEventVisit(visit *models.UserEventVisit) error {
 
 	result := pg.Create(&dbmodels.UserEventVisit{
 		ID:          uuid.New().String(),
 		UserID:      string(visit.UserID),
 		DateCreated: time.Now(),
 		EventType:   string(visit.Type),
-		AdminID:     &visitAdminID,
-		QuizID:      &visitQuizID,
+		AdminID:     helpers.UUIDToString(visit.AdminID),
+		QuizID:      helpers.UUIDToString(visit.QuizID),
 	})
 
 	return result.Error

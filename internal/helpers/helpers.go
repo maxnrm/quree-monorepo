@@ -8,6 +8,10 @@ import (
 //write a function to convert models.UUID to string and return pointer
 
 func UUIDToString(uuid models.UUID) *string {
+	if uuid == "" {
+		return nil
+	}
+
 	str := string(uuid)
 	return &str
 }
