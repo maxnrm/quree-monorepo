@@ -30,12 +30,4 @@ var BotConfig = &bot.BotConfig{
 		bot.MiniLogger(),
 		CheckAuthorize(),
 	},
-
-	MenuButton: &tele.MenuButton{
-		Type: tele.MenuButtonWebApp,
-		Text: "Сканер QR",
-		WebApp: &tele.WebApp{
-			URL: config.ADMIN_WEBAPP_URL,
-		},
-	},
 }

@@ -29,6 +29,7 @@ var BotConfig = &bot.BotConfig{
 
 	MiddlewaresMap: &[]tele.MiddlewareFunc{
 		bot.MiniLogger(),
+		CheckAuthorize(),
 	},
 
 	MenuButton: &tele.MenuButton{

@@ -3,6 +3,7 @@ package userbot
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/pg/dbmodels"
@@ -127,8 +128,35 @@ func registerHandler(c tele.Context) error {
 	}
 
 	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
-		Content: "Registered!",
+		Content: "Вы зарегистрированы!",
 	}, nil)
 
 	return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+}
+
+func CheckAuthorize() tele.MiddlewareFunc {
+	l := log.Default()
+
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(c tele.Context) error {
+			if c.Message().Text == "/register" {
+				return next(c)
+			}
+
+			chatID := fmt.Sprint(c.Chat().ID)
+			user := db.GetUserByChatIDAndRole(chatID, enums.USER)
+
+			if user == nil {
+				sm := models.CreateSendableMessage(SendLimiter, &models.Message{
+					Content: "Вы не зарегистрированы! Для регистрации введите /register",
+				}, nil)
+
+				l.Println("Юзер", chatID, "не авторизован")
+				return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+			}
+
+			l.Println("Юзер", chatID, "авторизован")
+			return next(c)
+		}
+	}
 }

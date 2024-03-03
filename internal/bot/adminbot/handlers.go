@@ -41,6 +41,16 @@ func registerHandler(c tele.Context) error {
 		return c.Send(err.Error())
 	}
 
+	menu := &tele.MenuButton{
+		Type: tele.MenuButtonWebApp,
+		Text: "Сканер QR",
+		WebApp: &tele.WebApp{
+			URL: config.ADMIN_WEBAPP_URL,
+		},
+	}
+
+	c.Bot().SetMenuButton(c.Sender(), menu)
+
 	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
 		Content: "Вы зарегистрированы как Админ!",
 	}, nil)
