@@ -1,15 +1,19 @@
 package adminbot
 
 import (
+	"context"
 	"quree/config"
 	"time"
 
 	"quree/internal/bot"
+	"quree/internal/sendlimiter"
 
 	tele "gopkg.in/telebot.v3"
 )
 
+var ctx = context.Background()
 var Bot *tele.Bot = bot.Init(BotConfig)
+var SendLimiter = sendlimiter.Init(ctx)
 
 var BotConfig = &bot.BotConfig{
 	Settings: &tele.Settings{
@@ -18,12 +22,13 @@ var BotConfig = &bot.BotConfig{
 	},
 
 	CommandHandlersMap: map[string]tele.HandlerFunc{
-		"/start": startHandler,
-		"/id":    idHandler,
+		config.ADMIN_AUTH_CODE: registerHandler,
+		"/id":                  idHandler,
 	},
 
 	MiddlewaresMap: &[]tele.MiddlewareFunc{
 		bot.MiniLogger(),
+		CheckAuthorize(),
 	},
 
 	MenuButton: &tele.MenuButton{

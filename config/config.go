@@ -13,11 +13,14 @@ var _ = godotenv.Load(".env")
 // COMMON
 var NATS_URL = getenvStr("NATS_URL", "nats://localhost:4222")
 var TG_API_BASE_URL = getenvStr("TG_API_BASE_URL", "https://api.telegram.org")
-var USER_BOT_TOKEN = getenvStr("USER_BOT_TOKEN", "")
-var ADMIN_BOT_TOKEN = getenvStr("ADMIN_BOT_TOKEN", "")
-var USER_WEBAPP_URL = getenvStr("USER_WEBAPP_URL", "")
-var ADMIN_WEBAPP_URL = getenvStr("ADMIN_WEBAPP_URL", "")
 var POSTGRES_CONN_STRING = getenvStr("POSTGRES_CONN_STRING", "")
+
+var USER_BOT_TOKEN = getenvStr("USER_BOT_TOKEN", "")
+var USER_WEBAPP_URL = getenvStr("USER_WEBAPP_URL", "")
+
+var ADMIN_BOT_TOKEN = getenvStr("ADMIN_BOT_TOKEN", "")
+var ADMIN_WEBAPP_URL = getenvStr("ADMIN_WEBAPP_URL", "")
+var ADMIN_AUTH_CODE = getenvStr("ADMIN_AUTH_CODE", "")
 
 // MESSAGES
 var NATS_MESSAGES_STREAM = getenvStr("NATS_MESSAGES_STREAM", "tg-messages")
@@ -34,6 +37,7 @@ var RATE_LIMIT_BURST_USER = getenvInt("RATE_LIMIT_BURST_USER", 1)
 var IMGPROXY_INTERNAL_URL = getenvStr("IMGPROXY_INTERNAL_URL", "http://localhost:8080")
 var IMGPROXY_PUBLIC_URL = getenvStr("IMGPROXY_PUBLIC_URL", "http://localhost:8080")
 
+// S3
 var S3_ENDPOINT = getenvStr("S3_ENDPOINT", "http://localhost:9000")
 var S3_BUCKET = getenvStr("S3_BUCKET", "")
 var S3_ACCESS_KEY = getenvStr("S3_ACCESS_KEY", "")

@@ -1,3 +1,7 @@
+# postgres
+
+ALTER TABLE users ADD UNIQUE (chat_id, role);
+
 # quree-monorepo
 
 # nats port-forward
