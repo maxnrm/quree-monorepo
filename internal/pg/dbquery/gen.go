@@ -19,6 +19,7 @@ var (
 	Q              = new(Query)
 	File           *file
 	Message        *message
+	Quiz           *quiz
 	User           *user
 	UserEventVisit *userEventVisit
 )
@@ -27,6 +28,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	File = &Q.File
 	Message = &Q.Message
+	Quiz = &Q.Quiz
 	User = &Q.User
 	UserEventVisit = &Q.UserEventVisit
 }
@@ -36,6 +38,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		db:             db,
 		File:           newFile(db, opts...),
 		Message:        newMessage(db, opts...),
+		Quiz:           newQuiz(db, opts...),
 		User:           newUser(db, opts...),
 		UserEventVisit: newUserEventVisit(db, opts...),
 	}
@@ -46,6 +49,7 @@ type Query struct {
 
 	File           file
 	Message        message
+	Quiz           quiz
 	User           user
 	UserEventVisit userEventVisit
 }
@@ -57,6 +61,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		db:             db,
 		File:           q.File.clone(db),
 		Message:        q.Message.clone(db),
+		Quiz:           q.Quiz.clone(db),
 		User:           q.User.clone(db),
 		UserEventVisit: q.UserEventVisit.clone(db),
 	}
@@ -75,6 +80,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		db:             db,
 		File:           q.File.replaceDB(db),
 		Message:        q.Message.replaceDB(db),
+		Quiz:           q.Quiz.replaceDB(db),
 		User:           q.User.replaceDB(db),
 		UserEventVisit: q.UserEventVisit.replaceDB(db),
 	}
@@ -83,6 +89,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 type queryCtx struct {
 	File           IFileDo
 	Message        IMessageDo
+	Quiz           IQuizDo
 	User           IUserDo
 	UserEventVisit IUserEventVisitDo
 }
@@ -91,6 +98,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		File:           q.File.WithContext(ctx),
 		Message:        q.Message.WithContext(ctx),
+		Quiz:           q.Quiz.WithContext(ctx),
 		User:           q.User.WithContext(ctx),
 		UserEventVisit: q.UserEventVisit.WithContext(ctx),
 	}

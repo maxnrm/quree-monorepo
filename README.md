@@ -1,6 +1,7 @@
 # postgres
 
 ALTER TABLE users ADD UNIQUE (chat_id, role);
+ALTER TABLE user_event_visits ADD UNIQUE (user_id, quiz_id);
 
 # quree-monorepo
 

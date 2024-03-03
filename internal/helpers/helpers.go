@@ -68,3 +68,23 @@ func StringToEventType(str string) enums.EventType {
 		return enums.EVENT
 	}
 }
+
+// function to get models.MessageType by count of UserEventVisit
+// 1 - LORE_EVENT1, 2 - LORE_EVENT2, 3 - LORE_EVENT3, 4 - LORE_EVENT4, 5 and more - LORE_EVENT_EXTRA
+
+func GetMessageTypeByCount(count int) enums.MessageType {
+	switch {
+	case count == 1:
+		return enums.LORE_EVENT1
+	case count == 2:
+		return enums.LORE_EVENT2
+	case count == 3:
+		return enums.LORE_EVENT3
+	case count == 4:
+		return enums.LORE_EVENT4
+	case count > 4:
+		return enums.LORE_EVENT_EXTRA
+	default:
+		return enums.START
+	}
+}

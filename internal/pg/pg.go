@@ -189,6 +189,37 @@ func (pg *pg) GetMessagesByType(messageType enums.MessageType) []models.Message 
 	return msgs
 }
 
+func (pg *pg) CreateUserEventVisit(visit models.UserEventVisit) error {
+
+	visitAdminID := string(visit.AdminID)
+	visitQuizID := string(visit.QuizID)
+
+	result := pg.Create(&dbmodels.UserEventVisit{
+		ID:          uuid.New().String(),
+		UserID:      string(visit.UserID),
+		DateCreated: time.Now(),
+		EventType:   string(visit.Type),
+		AdminID:     &visitAdminID,
+		QuizID:      &visitQuizID,
+	})
+
+	return result.Error
+}
+
+// method to count UserEventVisits for user, counting only events with type EVENT
+
+func (pg *pg) CountUserEventVisitsForUser(userID models.UUID) int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.UserEventVisit{}).Where("user_id = ? AND event_type = ?", userID, string(enums.EVENT)).Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
 func (pg *pg) Close() {
 	sqlDB, err := pg.DB.DB()
 	if err != nil {

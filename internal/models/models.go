@@ -29,9 +29,9 @@ type Message struct {
 
 type UserEventVisit struct {
 	CreatedAt time.Time       `json:"created_at"`
-	UserID    User            `json:"user_id"`
-	AdminID   User            `json:"admin_id"`
-	QuizID    UUID            `json:"quiz_id"`
+	UserID    UUID            `json:"user_id"`
+	AdminID   UUID            `json:"admin_id,omitempty"`
+	QuizID    UUID            `json:"quiz_id,omitempty"`
 	Type      enums.EventType `json:"type"`
 }
 
