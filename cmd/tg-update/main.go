@@ -14,7 +14,6 @@ func main() {
 	wg.Add(3)
 
 	go userBot.Start()
-	go userbot.SendLimiter.RemoveOldUserRateLimitersCache()
 
 	go adminBot.Start()
 

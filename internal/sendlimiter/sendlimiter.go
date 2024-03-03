@@ -21,10 +21,6 @@ type SendLimiter struct {
 	UserRateLimitersCache map[string]*UserRateLimiter
 }
 
-type Sender interface {
-	Send(what interface{}, opts ...interface{}) error
-}
-
 func Init(ctx context.Context) *SendLimiter {
 	limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_GLOBAL))
 	rateLimiter := rate.NewLimiter(limit, config.RATE_LIMIT_BURST_GLOBAL)
@@ -70,30 +66,4 @@ func (sl *SendLimiter) RemoveOldUserRateLimitersCache() {
 		}
 		fmt.Println("Clearing rate limit cache: ", sl.UserRateLimitersCache)
 	}
-}
-
-func (sl *SendLimiter) LimitSend(c Sender, chatID string, what interface{}) error {
-	userRateLimiter := sl.GetUserRateLimiter(chatID)
-
-	if userRateLimiter == nil {
-		sl.AddUserRateLimiter(chatID)
-		userRateLimiter = sl.GetUserRateLimiter(chatID)
-	}
-
-	err := userRateLimiter.RateLimiter.Wait(sl.Ctx)
-	if err != nil {
-		return err
-	}
-
-	sl.GlobalRateLimiter.Wait(sl.Ctx)
-
-	err = c.Send(what)
-	if err != nil {
-		return err
-	}
-
-	userRateLimiter.LastMsgSent = time.Now()
-
-	return nil
-
 }

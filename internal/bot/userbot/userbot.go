@@ -15,6 +15,7 @@ var Bot *tele.Bot = bot.Init(BotConfig)
 var SendLimiter = sendlimiter.Init(ctx)
 
 var BotConfig = &bot.BotConfig{
+	SendLimiter: SendLimiter,
 	Settings: &tele.Settings{
 		Token:  config.USER_BOT_TOKEN,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},

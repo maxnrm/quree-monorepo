@@ -2,11 +2,13 @@ package bot
 
 import (
 	"log"
+	"quree/internal/sendlimiter"
 
 	tele "gopkg.in/telebot.v3"
 )
 
 type BotConfig struct {
+	SendLimiter        *sendlimiter.SendLimiter
 	Settings           *tele.Settings
 	CommandHandlersMap map[string]tele.HandlerFunc
 	MiddlewaresMap     *[]tele.MiddlewareFunc
@@ -29,6 +31,8 @@ func Init(c *BotConfig) *tele.Bot {
 	for _, m := range *c.MiddlewaresMap {
 		b.Use(m)
 	}
+
+	go c.SendLimiter.RemoveOldUserRateLimitersCache()
 
 	return b
 }

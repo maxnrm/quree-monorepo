@@ -2,7 +2,6 @@ package userbot
 
 import (
 	"fmt"
-	"quree/config"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"sort"
@@ -22,22 +21,21 @@ func startHandler(c tele.Context) error {
 		return msgs[i].Sort < msgs[j].Sort
 	})
 
-	var what interface{}
-
 	for _, m := range msgs {
+		var sm *models.SendableMessage
 
-		if m.Content != "" && m.Image != "" {
+		if m.Image != "" {
 			file := db.GetFileRecordByID(m.Image)
-			what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + file.Filename), Caption: m.Content}
-		} else if m.Content != "" {
-			what = m.Content
-		} else if m.Image != "" {
-			file := db.GetFileRecordByID(m.Image)
-			what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + file.Filename)}
+			sm = models.CreateSendableMessage(SendLimiter, &m, file)
+		} else {
+			sm = models.CreateSendableMessage(SendLimiter, &m, nil)
 		}
 
-		SendLimiter.LimitSend(c, fmt.Sprint(c.Chat().ID), what)
-		c.Bot().Send(c.Chat(), what)
+		err := sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+		if err != nil {
+			return err
+		}
+
 	}
 
 	return nil
