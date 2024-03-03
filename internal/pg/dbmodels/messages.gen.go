@@ -18,6 +18,7 @@ type Message struct {
 	Content     *string   `gorm:"column:content;type:text" json:"content"`
 	Image       *string   `gorm:"column:image;type:uuid" json:"image"`
 	Type        string    `gorm:"column:type;type:character varying(255);not null;default:NULL" json:"type"`
+	Group_      string    `gorm:"column:group;type:character varying(255);not null;default:NULL" json:"group"`
 }
 
 // TableName Message's table name
