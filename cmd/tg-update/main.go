@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"quree/internal/bot/adminbot"
 	"quree/internal/bot/userbot"
+	ws "quree/internal/webserver"
 	"sync"
 )
 
@@ -13,7 +14,9 @@ var adminBot = adminbot.Bot
 
 func main() {
 
-	wg.Add(4)
+	wg.Add(5)
+
+	go ws.Start()
 
 	go userBot.Start()
 	defer userBot.Stop()

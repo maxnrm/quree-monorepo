@@ -3,6 +3,7 @@
 package webserver
 
 import (
+	"fmt"
 	"quree/internal/models"
 	"quree/internal/pg"
 
@@ -12,11 +13,15 @@ import (
 var db = pg.DB
 
 func Start() {
+
+	fmt.Println("Starting webserver...")
+
 	router := gin.Default()
 
 	router.POST("/api/user_event_visit/create", CreateUserEventVisit)
 
 	router.Run(":8080")
+
 }
 
 // create handler to add user event visit
