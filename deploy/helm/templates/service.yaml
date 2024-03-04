@@ -1,15 +1,19 @@
+{{- range $name, $app := .Values.apps }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "quree.fullname" . }}
+  name: "{{ $name }}"
   labels:
-    {{- include "quree.labels" . | nindent 4 }}
+    app: {{ $name }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ $app.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
+    - port: {{ $app.service.port }}
+      targetPort: {{ $app.service.targetPort }}
       protocol: TCP
       name: http
   selector:
-    {{- include "quree.selectorLabels" . | nindent 4 }}
+    app: {{ $name }}
+
+{{- end -}}

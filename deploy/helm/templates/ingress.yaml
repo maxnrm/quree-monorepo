@@ -1,14 +1,16 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "quree.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
-{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+{{- range $name, $app := .Values.apps }}
+---
+{{- if $app.ingress.enabled -}}
+{{- $fullName := $name -}}
+{{- $svcPort := $app.service.port -}}
+{{- if and $app.ingress.className (not (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey $app.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set $app.ingress.annotations "kubernetes.io/ingress.class" $app.ingress.className}}
   {{- end }}
 {{- end }}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- else if semverCompare ">=1.14-0" $.Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -17,18 +19,18 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "quree.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+    app: {{ $name }}
+  {{- with $app.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- if and $app.ingress.className (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ $app.ingress.className }}
   {{- end }}
-  {{- if .Values.ingress.tls }}
+  {{- if $app.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls }}
+    {{- range $app.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
@@ -37,7 +39,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range $app.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -59,3 +61,5 @@ spec:
           {{- end }}
     {{- end }}
 {{- end }}
+
+{{- end -}}

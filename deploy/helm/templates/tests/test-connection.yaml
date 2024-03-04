@@ -1,9 +1,11 @@
+{{- range $name, $app := .Values.apps }}
+---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ include "quree.fullname" . }}-test-connection"
+  name: "{{ $name }}-test-connection"
   labels:
-    {{- include "quree.labels" . | nindent 4 }}
+    app: {{ $name }}
   annotations:
     "helm.sh/hook": test
 spec:
@@ -11,5 +13,7 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "quree.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ $name }}:{{ $app.service.port }}']
   restartPolicy: Never
+
+{{- end -}}
