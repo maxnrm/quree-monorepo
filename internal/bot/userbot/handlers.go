@@ -102,19 +102,9 @@ func registerHandler(c tele.Context) error {
 	qrCodeWidth := int32(256)
 	qrCodeHeight := qrCodeWidth
 
-	qrCodeMessage := &models.QRCodeMessage{
-		ChatID:   chatID,
-		QRCodeID: models.UUID(qrCodeUUID),
-	}
+	qrCodeMessage := fmt.Sprintf("%s,%s", chatID, qrCodeUUID)
 
-	qrCodeMessageJSON, err := json.Marshal(qrCodeMessage)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(qrCodeMessageJSON))
-
-	png, err := qrcode.Encode(string(qrCodeMessageJSON), qrcode.Medium, int(qrCodeWidth))
+	png, err := qrcode.Encode(qrCodeMessage, qrcode.Medium, int(qrCodeWidth))
 	if err != nil {
 		return err
 	}

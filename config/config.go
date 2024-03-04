@@ -15,6 +15,8 @@ var NATS_URL = getenvStr("NATS_URL", "nats://localhost:4222")
 var TG_API_BASE_URL = getenvStr("TG_API_BASE_URL", "https://api.telegram.org")
 var POSTGRES_CONN_STRING = getenvStr("POSTGRES_CONN_STRING", "")
 
+var USER_PLACEHOLDER_BOT_TOKEN = getenvStr("USER_PLACEHOLDER_BOT_TOKEN", "")
+
 var USER_BOT_TOKEN = getenvStr("USER_BOT_TOKEN", "")
 var USER_WEBAPP_URL = getenvStr("USER_WEBAPP_URL", "")
 

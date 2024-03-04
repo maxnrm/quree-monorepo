@@ -47,9 +47,12 @@ func CreateUserEventVisit(c *gin.Context) {
 
 	err := c.BindJSON(&qrCodeMessage)
 	if err != nil {
+		fmt.Println("Error binding json")
 		c.JSON(400, gin.H{"error": "bad request"})
 		return
 	}
+
+	fmt.Println(qrCodeMessage)
 
 	userID, err := db.GetUserIDByChatIDAndRole(qrCodeMessage.ChatID, enums.USER)
 	if err != nil {
