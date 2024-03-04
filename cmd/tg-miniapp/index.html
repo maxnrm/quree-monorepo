@@ -12,34 +12,48 @@
             width: 50%;
             padding: 10px;
         }
+        #test-data {
+            border: 5px solid;
+            margin: auto;
+            width: 50%;
+            padding: 10px;
+        }
     </style>
 </head>
 
 <body>
     <button id="open-scan">Scan QR</button>
+    <br>
+    <button id="test-data">TestData</button>
     <div id="content"></div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
         let btn = window.document.getElementById("open-scan")
-
-        let counter = 0
+        let testdata = window.document.getElementById("test-data")
 
         btn.onclick = function () {
-            tg.showScanQrPopup({ text: "HELLO" }, function () {
+            tg.showScanQrPopup({ text: "СКАНИРОВАНИЕ..." }, function () {
                 return false
             });
         }
 
+        testdata.onclick = function () {
+            console.log(tg.initDataUnsafe.user.id)
+        }
+
         tg.onEvent("qrTextReceived", function({ data }) {
             let div = document.createElement("div");
-            div.innerHTML = counter + data;
+            div.innerHTML = data;
             document.getElementById("content").appendChild(div) 
-            counter++
+
+            parsedData = JSON.parse(data)
+            parsedData.admin_id = tg.initDataUnsafe.user.id
+            console.log(parsedData)
 
             fetch("/api/webhook", {
                 method: "POST",
-                body: counter + "" + data
+                body: data
             })
         })
 
