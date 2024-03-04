@@ -29,7 +29,7 @@ apps:
     service:
       type: ClusterIP
       port: 80
-      targetPort: 7777
+      targetPort: 80
     ingress:
       enabled: true
       className: "traefik"
