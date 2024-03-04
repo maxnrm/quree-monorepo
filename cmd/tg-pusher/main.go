@@ -76,6 +76,9 @@ func createConsumeHandler(ctx context.Context, bot *tele.Bot, sl *sendlimiter.Se
 			sm = models.CreateSendableMessage(sl, &msgJSON.Message, nil)
 		}
 
+		fmt.Println(sm.Message.Content)
+		fmt.Println(sm.Message.Image)
+
 		msg.DoubleAck(ctx)
 
 		go sm.Send(bot, msgJSON, &tele.SendOptions{})

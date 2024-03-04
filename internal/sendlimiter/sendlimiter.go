@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"quree/config"
-	"runtime"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -67,7 +66,7 @@ func (sl *SendLimiter) RemoveOldUserRateLimitersCache() {
 				sl.removeUserRateLimiter(k)
 			}
 		}
-		fmt.Println("Clearing cache, items:", sl.UserRateLimitersCache)
-		fmt.Println("Num goroutine:", runtime.NumGoroutine())
+		// fmt.Println("Clearing cache, items:", sl.UserRateLimitersCache)
+		// fmt.Println("Num goroutine:", runtime.NumGoroutine())
 	}
 }

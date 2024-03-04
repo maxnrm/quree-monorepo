@@ -30,7 +30,7 @@ func registerHandler(c tele.Context) error {
 
 		c.Bot().SetMenuButton(c.Sender(), &tele.MenuButton{
 			Type: tele.MenuButtonWebApp,
-			Text: "SCANER",
+			Text: "SCANNER",
 			WebApp: &tele.WebApp{
 				URL: config.ADMIN_WEBAPP_URL,
 			},
@@ -51,7 +51,7 @@ func registerHandler(c tele.Context) error {
 
 	c.Bot().SetMenuButton(c.Sender(), &tele.MenuButton{
 		Type: tele.MenuButtonWebApp,
-		Text: "Сканер QR",
+		Text: "SCANNER",
 		WebApp: &tele.WebApp{
 			URL: config.ADMIN_WEBAPP_URL,
 		},

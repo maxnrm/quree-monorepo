@@ -232,6 +232,20 @@ func (pg *pg) CountUserEventVisitsForUser(userID models.UUID) int64 {
 	return count
 }
 
+// method to get latest UserEventVisit for user, counting only events with type EVENT
+
+func (pg *pg) GetLatestUserEventVisitByUserID(userID models.UUID) (time.Time, error) {
+
+	var visit dbmodels.UserEventVisit
+	result := pg.Where("user_id = ? AND event_type = ?", userID, string(enums.EVENT)).Order("date_created desc").First(&visit)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return time.Now().Add(-10 * time.Minute), nil
+	}
+
+	return visit.DateCreated, nil
+}
+
 func (pg *pg) Close() {
 	sqlDB, err := pg.DB.DB()
 	if err != nil {

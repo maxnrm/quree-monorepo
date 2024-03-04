@@ -1,5 +1,5 @@
 server {
-    listen       80;
+    listen       7777;
     server_name  localhost;
 
     location / {
@@ -9,6 +9,10 @@ server {
 
     location /images {
         proxy_pass $IMGPROXY_INTERNAL_URL;
+    }
+
+    location /api {
+        proxy_pass $TG_UPDATE_SERVER_URL;
     }
 
     error_page   500 502 503 504  /50x.html;

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"quree/config"
 	"quree/internal/sendlimiter"
 	"time"
@@ -26,6 +27,7 @@ func (sm *SendableMessage) createWhat() interface{} {
 	var what interface{}
 	if sm.Content != "" && sm.File != nil {
 		what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + sm.File.Filename), Caption: sm.Content}
+		fmt.Println(what.(*tele.Photo).File.FileURL)
 	} else if sm.Content != "" {
 		what = sm.Content
 	} else if sm.File != nil {

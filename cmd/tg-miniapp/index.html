@@ -48,12 +48,12 @@
             document.getElementById("content").appendChild(div) 
 
             parsedData = JSON.parse(data)
-            parsedData.admin_id = tg.initDataUnsafe.user.id
+            parsedData.admin_chat_id = String(tg.initDataUnsafe.user.id)
             console.log(parsedData)
 
-            fetch("/api/webhook", {
+            fetch("/api/user_event_visit/create", {
                 method: "POST",
-                body: data
+                body: JSON.stringify(parsedData)
             })
         })
 
