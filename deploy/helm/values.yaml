@@ -116,3 +116,31 @@ apps:
     nodeSelector: {}
     tolerations: []
     affinity: {}
+  tg-placeholder:
+    replicaCount: 1
+    image:
+      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-placeholder
+      pullPolicy: IfNotPresent
+      tag: "v8"
+    podAnnotations: {}
+    podLabels: {}
+    podSecurityContext: {}
+    securityContext: {}
+    service:
+      type: ClusterIP
+      port: 80
+      targetPort: 3000
+    ingress:
+      enabled: false
+    resources: {}
+      # limits:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+    volumes: []
+    volumeMounts: []
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
