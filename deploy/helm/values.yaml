@@ -21,7 +21,7 @@ apps:
     image:
       repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-miniapp
       pullPolicy: IfNotPresent
-      tag: "v1"
+      tag: "v8"
     podAnnotations: {}
     podLabels: {}
     podSecurityContext: {}
@@ -65,7 +65,7 @@ apps:
     image:
       repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-update
       pullPolicy: IfNotPresent
-      tag: "v1"
+      tag: "v8"
     podAnnotations: {}
     podLabels: {}
     podSecurityContext: {}
@@ -93,7 +93,7 @@ apps:
     image:
       repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-pusher
       pullPolicy: IfNotPresent
-      tag: "v1"
+      tag: "v8"
     podAnnotations: {}
     podLabels: {}
     podSecurityContext: {}
