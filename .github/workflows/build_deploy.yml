@@ -77,4 +77,6 @@ jobs:
       - name: Upgrade quree
         run: |
           helm --kubeconfig config.yaml upgrade quree -n quree deploy/helm \
-          --set image.tag=${{ env.RELEASE_VERSION }} \
+          --set apps.tg-miniapp.image.tag=${{ env.RELEASE_VERSION }} \
+          --set apps.tg-update.image.tag=${{ env.RELEASE_VERSION }} \
+          --set apps.tg-pusher.image.tag=${{ env.RELEASE_VERSION }} \
