@@ -32,12 +32,15 @@ func Start() {
 	router := gin.Default()
 
 	router.POST("/api/user_event_visit/create", CreateUserEventVisit)
+	router.GET("/healthcheck", Healthcheck)
 
-	router.Run(":3000")
+	router.Run(fmt.Sprintf(": %s", config.USER_WEBSERVER_PORT))
 
 }
 
-// create handler to add user event visit
+func Healthcheck(c *gin.Context) {
+	c.JSON(200, gin.H{"status": "ok"})
+}
 
 func CreateUserEventVisit(c *gin.Context) {
 

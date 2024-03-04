@@ -1,12 +1,11 @@
 # postgres
-
 ALTER TABLE users ADD UNIQUE (chat_id, role);
 ALTER TABLE user_event_visits ADD UNIQUE (user_id, quiz_id);
 
-# quree-monorepo
+# helm
+kubectl create secret generic quree-env-secrets --from-env-file=.env.prod
 
 # nats port-forward
-
 k port-forward svc/nats 4222:4222 -n nats
 
 # pub-test
