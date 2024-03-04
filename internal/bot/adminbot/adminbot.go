@@ -23,6 +23,7 @@ var BotConfig = &bot.BotConfig{
 
 	CommandHandlersMap: map[string]tele.HandlerFunc{
 		config.ADMIN_AUTH_CODE: registerHandler,
+		"/start":               startHandler,
 		"/id":                  idHandler,
 	},
 

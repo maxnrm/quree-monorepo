@@ -26,8 +26,8 @@ var BotConfig = &bot.BotConfig{
 	},
 
 	CommandHandlersMap: map[string]tele.HandlerFunc{
-		"/start":    startHandler,
-		"/id":       idHandler,
+		"/start": startHandler,
+		// "/id":       idHandler,
 		"/register": registerHandler,
 		"/qr":       qrHandler,
 	},

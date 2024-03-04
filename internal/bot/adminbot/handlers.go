@@ -18,6 +18,10 @@ func idHandler(c tele.Context) error {
 	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
+func startHandler(c tele.Context) error {
+	return c.Send("Нажмите SCANNER для сканирования")
+}
+
 func registerHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
@@ -58,7 +62,7 @@ func registerHandler(c tele.Context) error {
 	})
 
 	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
-		Content: "Вы зарегистрированы как Админ!",
+		Content: "Вы зарегистрированы как Админ! Нажмите SCANNER для сканирования",
 	}, nil)
 
 	return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})

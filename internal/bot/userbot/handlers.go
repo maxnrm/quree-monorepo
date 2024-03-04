@@ -92,7 +92,7 @@ func registerHandler(c tele.Context) error {
 
 	if user != nil {
 		sm := models.CreateSendableMessage(SendLimiter, &models.Message{
-			Content: "Вы уже зарегистрированы!",
+			Content: "Вы уже зарегистрированы! /start /qr /register",
 		}, nil)
 
 		return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
@@ -160,7 +160,7 @@ func registerHandler(c tele.Context) error {
 	}
 
 	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
-		Content: "Вы зарегистрированы!",
+		Content: "Вы зарегистрированы! /start /qr /register",
 	}, nil)
 
 	return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
