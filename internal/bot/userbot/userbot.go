@@ -4,6 +4,7 @@ import (
 	"context"
 	"quree/config"
 	"quree/internal/bot"
+	"quree/internal/nats"
 	"quree/internal/sendlimiter"
 	"time"
 
@@ -13,6 +14,10 @@ import (
 var ctx = context.Background()
 var Bot *tele.Bot = bot.Init(BotConfig)
 var SendLimiter = sendlimiter.Init(ctx)
+var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
+	Ctx: ctx,
+	URL: config.NATS_URL,
+})
 
 var BotConfig = &bot.BotConfig{
 	Settings: &tele.Settings{

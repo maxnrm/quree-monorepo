@@ -2,7 +2,9 @@ package sendlimiter
 
 import (
 	"context"
+	"fmt"
 	"quree/config"
+	"runtime"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -27,7 +29,7 @@ func Init(ctx context.Context) *SendLimiter {
 	return &SendLimiter{
 		Ctx:                   ctx,
 		GlobalRateLimiter:     rateLimiter,
-		UserRateLimitersCache: map[string]*UserRateLimiter{},
+		UserRateLimitersCache: make(map[string]*UserRateLimiter),
 	}
 
 }
@@ -60,10 +62,12 @@ func (sl *SendLimiter) RemoveOldUserRateLimitersCache() {
 		time.Sleep(10 * time.Second)
 		for k, v := range sl.UserRateLimitersCache {
 			if time.Since(v.LastMsgSent) > 10*time.Second {
+				fmt.Println(v.LastMsgSent, "removing...")
+				fmt.Println(time.Now())
 				sl.removeUserRateLimiter(k)
 			}
 		}
-		// fmt.Println("Clearing cache, items:", len(sl.UserRateLimitersCache))
-		// fmt.Println("Num goroutine:", runtime.NumGoroutine())
+		fmt.Println("Clearing cache, items:", sl.UserRateLimitersCache)
+		fmt.Println("Num goroutine:", runtime.NumGoroutine())
 	}
 }

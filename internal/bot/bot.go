@@ -24,12 +24,16 @@ func Init(c *BotConfig) *tele.Bot {
 		log.Fatal(err)
 	}
 
-	for _, m := range *c.MiddlewaresMap {
-		b.Use(m)
+	if c.MiddlewaresMap != nil {
+		for _, m := range *c.MiddlewaresMap {
+			b.Use(m)
+		}
 	}
 
-	for c, h := range c.CommandHandlersMap {
-		b.Handle(c, h)
+	if c.CommandHandlersMap != nil {
+		for c, h := range c.CommandHandlersMap {
+			b.Handle(c, h)
+		}
 	}
 
 	return b

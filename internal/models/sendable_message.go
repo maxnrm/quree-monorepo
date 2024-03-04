@@ -39,7 +39,6 @@ func (sm *SendableMessage) sendWithLimit(b *tele.Bot, r tele.Recipient, opt *tel
 	chatID := r.Recipient()
 
 	userRateLimiter := sm.SendLimiter.GetUserRateLimiter(chatID)
-
 	if userRateLimiter == nil {
 		sm.SendLimiter.AddUserRateLimiter(chatID)
 		userRateLimiter = sm.SendLimiter.GetUserRateLimiter(chatID)
@@ -50,7 +49,10 @@ func (sm *SendableMessage) sendWithLimit(b *tele.Bot, r tele.Recipient, opt *tel
 		return err
 	}
 
-	sm.SendLimiter.GlobalRateLimiter.Wait(sm.SendLimiter.Ctx)
+	err = sm.SendLimiter.GlobalRateLimiter.Wait(sm.SendLimiter.Ctx)
+	if err != nil {
+		return err
+	}
 
 	what := sm.createWhat()
 

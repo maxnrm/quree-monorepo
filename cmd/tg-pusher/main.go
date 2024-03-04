@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"quree/config"
 	"quree/internal/bot"
 	"quree/internal/models"
@@ -47,21 +48,21 @@ var consumerConfig = jetstream.ConsumerConfig{
 }
 
 func main() {
-	wg.Add(1)
 	go sl.RemoveOldUserRateLimitersCache()
 
 	nc.CreateStream(streamConfig)
 
 	cons := nc.CreateConsumer(streamConfig.Name, consumerConfig)
 
-	messageHandler := createConsumeHandler(botSender, sl)
+	messageHandler := createConsumeHandler(ctx, botSender, sl)
 
-	cons.Consume(messageHandler)
-
+	wg.Add(1)
+	go cons.Consume(messageHandler)
+	fmt.Println("Consuming...")
 	wg.Wait()
 }
 
-func createConsumeHandler(bot *tele.Bot, sl *sendlimiter.SendLimiter) jetstream.MessageHandler {
+func createConsumeHandler(ctx context.Context, bot *tele.Bot, sl *sendlimiter.SendLimiter) jetstream.MessageHandler {
 	return func(msg jetstream.Msg) {
 		var msgJSON models.MessageWithRecipient
 		json.Unmarshal(msg.Data(), &msgJSON)
@@ -75,6 +76,8 @@ func createConsumeHandler(bot *tele.Bot, sl *sendlimiter.SendLimiter) jetstream.
 			sm = models.CreateSendableMessage(sl, &msgJSON.Message, nil)
 		}
 
-		sm.Send(bot, msgJSON, &tele.SendOptions{})
+		msg.DoubleAck(ctx)
+
+		go sm.Send(bot, msgJSON, &tele.SendOptions{})
 	}
 }

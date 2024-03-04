@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"quree/config"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/pg/dbmodels"
 	"quree/internal/s3"
 	"sort"
+	"time"
 
 	"quree/internal/pg"
 
@@ -30,27 +32,44 @@ func startHandler(c tele.Context) error {
 	})
 
 	for _, m := range msgs {
-		var sm *models.SendableMessage
 
-		if m.Image != "" {
-			file := db.GetFileRecordByID(m.Image)
-			sm = models.CreateSendableMessage(SendLimiter, &m, file)
-		} else {
-			sm = models.CreateSendableMessage(SendLimiter, &m, nil)
-		}
-
-		err := sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+		msg, err := json.Marshal(&models.MessageWithRecipient{
+			ChatID:  fmt.Sprint(c.Chat().ID),
+			Message: m,
+		})
 		if err != nil {
-			return err
+			log.Println(err)
+			continue
 		}
 
+		nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, msg)
 	}
 
 	return nil
 }
 
 func idHandler(c tele.Context) error {
-	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
+
+	for i := 0; i < 20; i++ {
+
+		msg, err := json.Marshal(&models.MessageWithRecipient{
+			ChatID: fmt.Sprint(c.Chat().ID),
+			Message: models.Message{
+				// content is i with time.Now() with seconds and milliseconds
+				Content: fmt.Sprint("ID: ", i, " Sent at: ", time.Now().Format("15:04:05.000")),
+			},
+		})
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, msg)
+	}
+
+	return nil
+
+	// return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
 func qrHandler(c tele.Context) error {
