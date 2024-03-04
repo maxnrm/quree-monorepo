@@ -19,7 +19,7 @@ apps:
   tg-miniapp:
     replicaCount: 1
     image:
-      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/tg-miniapp
+      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-miniapp
       pullPolicy: IfNotPresent
       tag: "v1"
     podAnnotations: {}
@@ -63,7 +63,7 @@ apps:
   tg-update:
     replicaCount: 1
     image:
-      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/tg-update
+      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-update
       pullPolicy: IfNotPresent
       tag: "v1"
     podAnnotations: {}
@@ -91,7 +91,7 @@ apps:
   tg-pusher:
     replicaCount: 1
     image:
-      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/tg-pusher
+      repository: cr.yandex/crp5pkqt9sg0q8urtg3f/quree-tg-pusher
       pullPolicy: IfNotPresent
       tag: "v1"
     podAnnotations: {}
