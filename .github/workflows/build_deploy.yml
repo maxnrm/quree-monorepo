@@ -92,3 +92,4 @@ jobs:
           --set apps.tg-miniapp.image.tag=${{ env.RELEASE_VERSION }} \
           --set apps.tg-update.image.tag=${{ env.RELEASE_VERSION }} \
           --set apps.tg-pusher.image.tag=${{ env.RELEASE_VERSION }} \
+          --set apps.tg-placeholder.image.tag=${{ env.RELEASE_VERSION }} \
