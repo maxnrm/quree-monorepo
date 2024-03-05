@@ -31,9 +31,9 @@ func newMessage(db *gorm.DB, opts ...gen.DOOption) message {
 	_message.DateCreated = field.NewTime(tableName, "date_created")
 	_message.Image = field.NewString(tableName, "image")
 	_message.Type = field.NewString(tableName, "type")
+	_message.Variant = field.NewInt32(tableName, "variant")
 	_message.Text = field.NewString(tableName, "text")
 	_message.Caption = field.NewString(tableName, "caption")
-	_message.Variant = field.NewInt32(tableName, "variant")
 
 	_message.fillFieldMap()
 
@@ -48,9 +48,9 @@ type message struct {
 	DateCreated field.Time
 	Image       field.String
 	Type        field.String
+	Variant     field.Int32
 	Text        field.String
 	Caption     field.String
-	Variant     field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -71,9 +71,9 @@ func (m *message) updateTableName(table string) *message {
 	m.DateCreated = field.NewTime(table, "date_created")
 	m.Image = field.NewString(table, "image")
 	m.Type = field.NewString(table, "type")
+	m.Variant = field.NewInt32(table, "variant")
 	m.Text = field.NewString(table, "text")
 	m.Caption = field.NewString(table, "caption")
-	m.Variant = field.NewInt32(table, "variant")
 
 	m.fillFieldMap()
 
@@ -95,9 +95,9 @@ func (m *message) fillFieldMap() {
 	m.fieldMap["date_created"] = m.DateCreated
 	m.fieldMap["image"] = m.Image
 	m.fieldMap["type"] = m.Type
+	m.fieldMap["variant"] = m.Variant
 	m.fieldMap["text"] = m.Text
 	m.fieldMap["caption"] = m.Caption
-	m.fieldMap["variant"] = m.Variant
 }
 
 func (m message) clone(db *gorm.DB) message {

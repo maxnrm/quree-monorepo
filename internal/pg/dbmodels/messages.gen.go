@@ -16,9 +16,9 @@ type Message struct {
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
 	Image       *string   `gorm:"column:image;type:uuid" json:"image"`
 	Type        string    `gorm:"column:type;type:character varying(255);not null;index:messages_type,priority:1;default:NULL" json:"type"`
-	Text        *string   `gorm:"column:text;type:character varying(255)" json:"text"`
-	Caption     *string   `gorm:"column:caption;type:character varying(255)" json:"caption"`
 	Variant     *int32    `gorm:"column:variant;type:integer" json:"variant"`
+	Text        *string   `gorm:"column:text;type:text" json:"text"`
+	Caption     *string   `gorm:"column:caption;type:text" json:"caption"`
 }
 
 // TableName Message's table name
