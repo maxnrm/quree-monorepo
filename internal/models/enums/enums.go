@@ -2,7 +2,6 @@ package enums
 
 type UserRole string
 type MessageType string
-type EventType string
 
 const (
 	ADMIN UserRole = "ADMIN"
@@ -18,9 +17,4 @@ const (
 	LORE_EVENT4      MessageType = "LORE_EVENT4"
 	LORE_EVENT_EXTRA MessageType = "LORE_EVENT_EXTRA"
 	LORE_EVENT_QUIZ  MessageType = "LORE_EVENT_QUIZ"
-)
-
-const (
-	EVENT EventType = "EVENT"
-	QUIZ  EventType = "QUIZ"
 )

@@ -1,9 +1,5 @@
 package models
 
-import (
-	tele "gopkg.in/telebot.v3"
-)
-
 type UUID string
 
 type User struct {
@@ -16,14 +12,6 @@ type User struct {
 type Admin struct {
 	ID     UUID   `json:"id"`
 	ChatID string `json:"chat_id"`
-}
-
-type Message struct {
-	Text        *string           `json:"text"`
-	Caption     *string           `json:"caption"`
-	Photo       *tele.Photo       `json:"photo"`
-	SendOptions *tele.SendOptions `json:"send_options"`
-	Variant     int               `json:"variant"`
 }
 
 type UserEventVisit struct {

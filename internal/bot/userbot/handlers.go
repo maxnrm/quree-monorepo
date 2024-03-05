@@ -10,8 +10,6 @@ import (
 	"quree/internal/models/enums"
 	"quree/internal/pg/dbmodels"
 	"quree/internal/s3"
-	"sort"
-	"time"
 
 	"quree/internal/pg"
 
@@ -25,25 +23,26 @@ var db = pg.DB
 
 func startHandler(c tele.Context) error {
 
-	msgs := db.GetMessagesByType(enums.START)
-
-	sort.Slice(msgs, func(i, j int) bool {
-		return msgs[i].Sort < msgs[j].Sort
-	})
-
-	for _, m := range msgs {
-
-		msg, err := json.Marshal(&models.MessageWithRecipient{
-			ChatID:  fmt.Sprint(c.Chat().ID),
-			Message: m,
-		})
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, msg)
+	msg := db.GetMessagesByType(enums.START)
+	json, err := json.Marshal(msg)
+	if err != nil {
+		return err
 	}
+
+	nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, json)
+
+	return nil
+}
+
+func helpHandler(c tele.Context) error {
+
+	msg := db.GetMessagesByType(enums.START)
+	json, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+
+	nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, json)
 
 	return nil
 }
@@ -52,31 +51,27 @@ func idHandler(c tele.Context) error {
 
 	for i := 0; i < 20; i++ {
 
-		msg, err := json.Marshal(&models.MessageWithRecipient{
-			ChatID: fmt.Sprint(c.Chat().ID),
-			Message: models.Message{
-				// content is i with time.Now() with seconds and milliseconds
-				Content: fmt.Sprint("ID: ", i, " Sent at: ", time.Now().Format("15:04:05.000")),
-			},
-		})
-		if err != nil {
-			log.Println(err)
-			continue
+		text := fmt.Sprintf("%d", c.Chat().ID)
+
+		var message = models.SendableMessage{
+			Text: &text,
 		}
 
-		nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, msg)
+		json, err := json.Marshal(message)
+		if err != nil {
+			return err
+		}
+
+		nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, json)
 	}
 
 	return nil
-
-	// return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
 func qrHandler(c tele.Context) error {
 	chatID := fmt.Sprint(c.Chat().ID)
 	user := db.GetUserByChatIDAndRole(chatID, enums.USER)
 
-	file := db.GetFileRecordByID(user.QRCode)
 	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
 		Content: "Your QRCode",
 	}, file)

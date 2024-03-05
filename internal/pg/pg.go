@@ -73,51 +73,16 @@ func (pg *pg) CreateUser(user *models.User) error {
 
 }
 
-func (pg *pg) GetUserIDByChatIDAndRole(chatID string, role enums.UserRole) (models.UUID, error) {
-
+func (pg *pg) GetUserByChatID(chatID string) (models.UUID, error) {
 	var user dbmodels.User
 	// get user by chatID and Role
-	result := pg.Where("chat_id = ? AND role = ?", chatID, string(role)).First(&user)
+	result := pg.Where("chat_id = ?", chatID).First(&user)
 
 	if result.Error != nil {
 		return "", result.Error
 	}
 
 	return models.UUID(user.ID), nil
-
-}
-
-// function to get user from db using ChatID, transform in models.User struct and return
-func (pg *pg) GetUserByChatIDAndRole(chatID string, role enums.UserRole) *models.User {
-
-	var user dbmodels.User
-	// get user by chatID and Role
-	result := pg.Where("chat_id = ? AND role = ?", chatID, string(role)).First(&user)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return nil
-	}
-
-	var userQRCode string
-	if user.QrCode == nil {
-		userQRCode = ""
-	} else {
-		userQRCode = *user.QrCode
-	}
-
-	var phoneNumber string
-	if user.PhoneNumber == nil {
-		phoneNumber = ""
-	} else {
-		phoneNumber = *user.PhoneNumber
-	}
-
-	return &models.User{
-		ChatID:      *user.ChatID,
-		PhoneNumber: phoneNumber,
-		Role:        enums.UserRole(user.Role),
-		QRCode:      models.UUID(userQRCode),
-	}
 }
 
 // function to UploadFile in s3 and create record in db in table Files
@@ -160,48 +125,23 @@ func (pg *pg) GetFileRecordByID(id models.UUID) *models.File {
 }
 
 // function to get messages by type
-func (pg *pg) GetMessagesByType(messageType enums.MessageType) []models.Message {
+func (pg *pg) GetMessagesByType(messageType enums.MessageType) *models.SendableMessage {
 
-	var messages []dbmodels.Message
-	result := pg.Where("type = ?", messageType).Find(&messages)
-
+	var message dbmodels.Message
+	result := pg.Where("type = ?", messageType).First(&message)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
 
-	var msgs []models.Message
-	for _, message := range messages {
-
-		var messageContent, messageImage string
-		var messageSort int32
-
-		if message.Content != nil {
-			messageContent = *message.Content
-		} else {
-			messageContent = ""
-		}
-
-		if message.Image != nil {
-			messageImage = *message.Image
-		} else {
-			messageImage = ""
-		}
-
-		if message.Sort != nil {
-			messageSort = *message.Sort
-		} else {
-			messageSort = 0
-		}
-
-		msgs = append(msgs, models.Message{
-			Content: messageContent,
-			Image:   models.UUID(messageImage),
-			Type:    messageType,
-			Sort:    messageSort,
-		})
+	var photo *tele.Photo
+	if message.Image != nil {
+		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + message.Image + ".jpg"
+		photo = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + message.Image), Caption: message.Caption}
 	}
 
-	return msgs
+	return &models.SendableMessage{
+		Text:   *message.Text,
+		Photo: *message.Image,
 }
 
 func (pg *pg) CreateUserEventVisit(visit *models.UserEventVisit) error {

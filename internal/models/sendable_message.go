@@ -8,10 +8,14 @@ import (
 )
 
 type SendableMessage struct {
-	*Message
-	Recipient tele.Recipient `json:"recipient"`
-	Limiter   *sendlimiter.SendLimiter
-	Bot       *tele.Bot
+	Text        *string           `json:"text"`
+	Caption     *string           `json:"caption"`
+	Photo       *tele.Photo       `json:"photo"`
+	SendOptions *tele.SendOptions `json:"send_options"`
+	Variant     int               `json:"variant"`
+	Recipient   tele.Recipient    `json:"recipient"`
+	Limiter     *sendlimiter.SendLimiter
+	Bot         *tele.Bot
 }
 
 func (sm *SendableMessage) createWhat() interface{} {
