@@ -64,23 +64,18 @@ func main() {
 
 func createConsumeHandler(ctx context.Context, bot *tele.Bot, sl *sendlimiter.SendLimiter) jetstream.MessageHandler {
 	return func(msg jetstream.Msg) {
-		var msgJSON models.MessageWithRecipient
-		json.Unmarshal(msg.Data(), &msgJSON)
-
-		var sm *models.SendableMessage
-
-		if msgJSON.Image != "" {
-			file := db.GetFileRecordByID(msgJSON.Image)
-			sm = models.CreateSendableMessage(sl, &msgJSON.Message, file)
-		} else {
-			sm = models.CreateSendableMessage(sl, &msgJSON.Message, nil)
+		var sendableMessage models.SendableMessage
+		err := json.Unmarshal(msg.Data(), &sendableMessage)
+		if err != nil {
+			fmt.Println("Error while unmarshalling sendableMessage from json:", err)
+			return
 		}
 
-		fmt.Println(sm.Message.Content)
-		fmt.Println(sm.Message.Image)
+		sendableMessage.Bot = bot
+		sendableMessage.Limiter = sl
 
 		msg.DoubleAck(ctx)
 
-		go sm.Send(bot, msgJSON, &tele.SendOptions{})
+		go sendableMessage.Send()
 	}
 }

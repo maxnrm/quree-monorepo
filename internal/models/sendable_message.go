@@ -14,14 +14,6 @@ type SendableMessage struct {
 	Bot       *tele.Bot
 }
 
-func CreateSendableMessage(m *Message, b *tele.Bot, l *sendlimiter.SendLimiter) *SendableMessage {
-	return &SendableMessage{
-		Message: m,
-		Bot:     b,
-		Limiter: l,
-	}
-}
-
 func (sm *SendableMessage) createWhat() interface{} {
 	var what interface{}
 
