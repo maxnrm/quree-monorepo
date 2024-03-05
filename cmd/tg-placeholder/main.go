@@ -12,7 +12,7 @@ import (
 )
 
 var ctx = context.Background()
-var SendLimiter = sendlimiter.Init(ctx)
+var limiter = sendlimiter.Init(ctx)
 
 func main() {
 	b, err := tele.NewBot(tele.Settings{
@@ -52,8 +52,5 @@ func startHandler(c tele.Context) error {
 		Text: &text,
 	}
 
-	message.Bot = c.Bot()
-	message.Limiter = sendlimiter.Init(ctx)
-
-	return message.Send()
+	return message.Send(c.Bot(), limiter)
 }

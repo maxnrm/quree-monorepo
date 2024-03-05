@@ -85,7 +85,7 @@ func main() {
 	wg.Wait()
 }
 
-func createConsumeHandler(ctx context.Context, bot *tele.Bot, sl *sendlimiter.SendLimiter) jetstream.MessageHandler {
+func createConsumeHandler(ctx context.Context, bot *tele.Bot, limiter *sendlimiter.SendLimiter) jetstream.MessageHandler {
 	return func(msg jetstream.Msg) {
 		var sendableMessage models.SendableMessage
 		err := json.Unmarshal(msg.Data(), &sendableMessage)
@@ -94,11 +94,8 @@ func createConsumeHandler(ctx context.Context, bot *tele.Bot, sl *sendlimiter.Se
 			return
 		}
 
-		sendableMessage.Bot = bot
-		sendableMessage.Limiter = sl
-
 		msg.DoubleAck(ctx)
 
-		go sendableMessage.Send()
+		go sendableMessage.Send(bot, limiter)
 	}
 }

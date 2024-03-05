@@ -7,15 +7,21 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
+type Recipient struct {
+	ChatID string
+}
+
+func (r *Recipient) Recipient() string {
+	return r.ChatID
+}
+
 type SendableMessage struct {
 	Text        *string           `json:"text"`
 	Caption     *string           `json:"caption"`
 	Photo       *tele.Photo       `json:"photo"`
 	SendOptions *tele.SendOptions `json:"send_options"`
 	Variant     int               `json:"variant"`
-	Recipient   tele.Recipient    `json:"recipient"`
-	Limiter     *sendlimiter.SendLimiter
-	Bot         *tele.Bot
+	Recipient   *Recipient        `json:"recipient"`
 }
 
 func (sm *SendableMessage) createWhat() interface{} {
@@ -30,28 +36,28 @@ func (sm *SendableMessage) createWhat() interface{} {
 	return what
 }
 
-func (sm *SendableMessage) sendWithLimit() error {
+func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.SendLimiter) error {
 	chatID := sm.Recipient.Recipient()
 
-	userRateLimiter := sm.Limiter.GetUserRateLimiter(chatID)
+	userRateLimiter := limiter.GetUserRateLimiter(chatID)
 	if userRateLimiter == nil {
-		sm.Limiter.AddUserRateLimiter(chatID)
-		userRateLimiter = sm.Limiter.GetUserRateLimiter(chatID)
+		limiter.AddUserRateLimiter(chatID)
+		userRateLimiter = limiter.GetUserRateLimiter(chatID)
 	}
 
-	err := userRateLimiter.RateLimiter.Wait(sm.Limiter.Ctx)
+	err := userRateLimiter.RateLimiter.Wait(limiter.Ctx)
 	if err != nil {
 		return err
 	}
 
-	err = sm.Limiter.GlobalRateLimiter.Wait(sm.Limiter.Ctx)
+	err = limiter.GlobalRateLimiter.Wait(limiter.Ctx)
 	if err != nil {
 		return err
 	}
 
 	what := sm.createWhat()
 
-	_, err = sm.Bot.Send(sm.Recipient, what, sm.SendOptions)
+	_, err = bot.Send(sm.Recipient, what, sm.SendOptions)
 	if err != nil {
 		return err
 	}
@@ -62,6 +68,6 @@ func (sm *SendableMessage) sendWithLimit() error {
 
 }
 
-func (sm *SendableMessage) Send() error {
-	return sm.sendWithLimit()
+func (sm *SendableMessage) Send(bot *tele.Bot, limiter *sendlimiter.SendLimiter) error {
+	return sm.sendWithLimit(bot, limiter)
 }

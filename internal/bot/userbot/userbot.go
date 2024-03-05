@@ -61,8 +61,13 @@ func startHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
 
+	rec := &models.Recipient{
+		ChatID: chatID,
+	}
+
 	messages := db.GetMessagesByType(enums.START)
 	message := messages[0]
+	message.Recipient = rec
 	json, err := json.Marshal(message)
 	if err != nil {
 		return err
@@ -77,8 +82,13 @@ func helpHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
 
+	rec := &models.Recipient{
+		ChatID: chatID,
+	}
+
 	messages := db.GetMessagesByType(enums.START)
 	message := messages[0]
+	message.Recipient = rec
 	json, err := json.Marshal(message)
 	if err != nil {
 		return err
@@ -91,14 +101,18 @@ func helpHandler(c tele.Context) error {
 
 func idHandler(c tele.Context) error {
 	chatID := fmt.Sprint(c.Chat().ID)
+	rec := &models.Recipient{
+		ChatID: chatID,
+	}
 
 	for i := 0; i < 20; i++ {
 
-		text := fmt.Sprintf("%d", chatID)
+		text := fmt.Sprintf("index: %d", i)
 
 		var message = models.SendableMessage{
 			Text: &text,
 		}
+		message.Recipient = rec
 
 		json, err := json.Marshal(message)
 		if err != nil {
@@ -123,6 +137,12 @@ func qrHandler(c tele.Context) error {
 	qr := &tele.Photo{File: tele.FromURL(photoURL), Caption: "Твой QR-код"}
 
 	message := models.SendableMessage{Photo: qr}
+
+	rec := &models.Recipient{
+		ChatID: chatID,
+	}
+
+	message.Recipient = rec
 
 	json, err := json.Marshal(message)
 	if err != nil {

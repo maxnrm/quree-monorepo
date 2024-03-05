@@ -75,6 +75,9 @@ func registerHandler(c tele.Context) error {
 
 		var message = models.SendableMessage{
 			Text: &text,
+			Recipient: &models.Recipient{
+				ChatID: chatID,
+			},
 		}
 
 		json, err := json.Marshal(message)
@@ -90,11 +93,17 @@ func registerHandler(c tele.Context) error {
 	err := db.CreateAdmin(&dbmodels.Admin{
 		ChatID: chatID,
 	})
+	if err != nil {
+		return err
+	}
 
 	text := "Вы зарегистрированы как админ! Нажмите SCANNER для сканирования"
 
 	var message = models.SendableMessage{
 		Text: &text,
+		Recipient: &models.Recipient{
+			ChatID: chatID,
+		},
 	}
 
 	json, err := json.Marshal(message)
@@ -126,6 +135,9 @@ func CheckAuthorize() tele.MiddlewareFunc {
 
 				var message = models.SendableMessage{
 					Text: &text,
+					Recipient: &models.Recipient{
+						ChatID: chatID,
+					},
 				}
 
 				json, err := json.Marshal(message)
