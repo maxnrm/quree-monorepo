@@ -34,7 +34,7 @@ func Start() {
 	router.POST("/api/user_event_visit/create", CreateUserEventVisit)
 	router.GET("/healthcheck", Healthcheck)
 
-	router.Run(fmt.Sprintf(": %s", config.USER_WEBSERVER_PORT))
+	router.Run(fmt.Sprintf(":%s", config.USER_WEBSERVER_PORT))
 
 }
 

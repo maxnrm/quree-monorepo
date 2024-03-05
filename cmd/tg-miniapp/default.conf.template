@@ -3,7 +3,7 @@ server {
 
     location /webapp/admin {
         root   /usr/share/nginx/html;
-        index  admin.html
+        index  admin.html;
     }
 
     location / {
