@@ -42,7 +42,7 @@ apps:
       hosts:
         - host: quree.maxnrm.monster
           paths:
-            - path: /webapp/admin
+            - path: /
               pathType: ImplementationSpecific
       tls:
         - secretName: quree-manxmr-monster-tls
