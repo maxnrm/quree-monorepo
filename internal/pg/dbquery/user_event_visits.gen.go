@@ -29,10 +29,8 @@ func newUserEventVisit(db *gorm.DB, opts ...gen.DOOption) userEventVisit {
 	_userEventVisit.ALL = field.NewAsterisk(tableName)
 	_userEventVisit.ID = field.NewString(tableName, "id")
 	_userEventVisit.DateCreated = field.NewTime(tableName, "date_created")
-	_userEventVisit.UserID = field.NewString(tableName, "user_id")
-	_userEventVisit.QuizID = field.NewString(tableName, "quiz_id")
-	_userEventVisit.AdminID = field.NewString(tableName, "admin_id")
-	_userEventVisit.EventType = field.NewString(tableName, "event_type")
+	_userEventVisit.UserChatID = field.NewString(tableName, "user_chat_id")
+	_userEventVisit.AdminChatID = field.NewString(tableName, "admin_chat_id")
 
 	_userEventVisit.fillFieldMap()
 
@@ -45,10 +43,8 @@ type userEventVisit struct {
 	ALL         field.Asterisk
 	ID          field.String
 	DateCreated field.Time
-	UserID      field.String
-	QuizID      field.String
-	AdminID     field.String
-	EventType   field.String
+	UserChatID  field.String
+	AdminChatID field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -67,10 +63,8 @@ func (u *userEventVisit) updateTableName(table string) *userEventVisit {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewString(table, "id")
 	u.DateCreated = field.NewTime(table, "date_created")
-	u.UserID = field.NewString(table, "user_id")
-	u.QuizID = field.NewString(table, "quiz_id")
-	u.AdminID = field.NewString(table, "admin_id")
-	u.EventType = field.NewString(table, "event_type")
+	u.UserChatID = field.NewString(table, "user_chat_id")
+	u.AdminChatID = field.NewString(table, "admin_chat_id")
 
 	u.fillFieldMap()
 
@@ -87,13 +81,11 @@ func (u *userEventVisit) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (u *userEventVisit) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 6)
+	u.fieldMap = make(map[string]field.Expr, 4)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["date_created"] = u.DateCreated
-	u.fieldMap["user_id"] = u.UserID
-	u.fieldMap["quiz_id"] = u.QuizID
-	u.fieldMap["admin_id"] = u.AdminID
-	u.fieldMap["event_type"] = u.EventType
+	u.fieldMap["user_chat_id"] = u.UserChatID
+	u.fieldMap["admin_chat_id"] = u.AdminChatID
 }
 
 func (u userEventVisit) clone(db *gorm.DB) userEventVisit {

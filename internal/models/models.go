@@ -1,46 +1,35 @@
 package models
 
 import (
-	"quree/internal/models/enums"
+	tele "gopkg.in/telebot.v3"
 )
 
 type UUID string
 
 type User struct {
-	ChatID      string         `json:"chat_id"`
-	PhoneNumber string         `json:"phone_number"`
-	Role        enums.UserRole `json:"role"`
-	QRCode      UUID           `json:"qr_code"`
+	ID           UUID   `json:"id"`
+	ChatID       string `json:"chat_id"`
+	QRCode       UUID   `json:"qr_code"`
+	QuizCityName string `json:"quiz_city_name"`
 }
 
-// convert User to str
-
-func (u *User) String() string {
-	return u.ChatID
-}
-
-type Message struct {
-	Content string            `json:"content"`
-	Image   UUID              `json:"image"`
-	Type    enums.MessageType `json:"type"`
-	Sort    int32             `json:"sort"`
-	Group   int               `json:"group"`
-}
-
-type MessageWithRecipient struct {
-	Message
+type Admin struct {
+	ID     UUID   `json:"id"`
 	ChatID string `json:"chat_id"`
 }
 
-func (m MessageWithRecipient) Recipient() string {
-	return m.ChatID
+type Message struct {
+	Text        *string           `json:"text"`
+	Caption     *string           `json:"caption"`
+	Photo       *tele.Photo       `json:"photo"`
+	SendOptions *tele.SendOptions `json:"send_options"`
+	Variant     int               `json:"variant"`
 }
 
 type UserEventVisit struct {
-	UserID  UUID            `json:"user_id"`
-	AdminID UUID            `json:"admin_id,omitempty"`
-	QuizID  UUID            `json:"quiz_id,omitempty"`
-	Type    enums.EventType `json:"type"`
+	DateCreated string `json:"date_created"`
+	UserChatID  string `json:"user_id"`
+	AdminChatID string `json:"admin_id"`
 }
 
 type File struct {
@@ -52,8 +41,7 @@ type File struct {
 }
 
 type QRCodeMessage struct {
-	ChatID      string `json:"chat_id"`
+	UserChatID  string `json:"chat_id"`
 	AdminChatID string `json:"admin_chat_id,omitempty"`
-	QuizID      string `json:"quiz_id,omitempty"`
 	QRCodeID    UUID   `json:"qr_code_id"`
 }

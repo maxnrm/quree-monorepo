@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-	"quree/config"
 	"quree/internal/sendlimiter"
 	"time"
 
@@ -11,54 +9,53 @@ import (
 
 type SendableMessage struct {
 	*Message
-	*File
-	SendLimiter *sendlimiter.SendLimiter
+	Recipient tele.Recipient `json:"recipient"`
+	Limiter   *sendlimiter.SendLimiter
+	Bot       *tele.Bot
 }
 
-func CreateSendableMessage(sl *sendlimiter.SendLimiter, m *Message, f *File) *SendableMessage {
+func CreateSendableMessage(m *Message, b *tele.Bot, l *sendlimiter.SendLimiter) *SendableMessage {
 	return &SendableMessage{
-		Message:     m,
-		File:        f,
-		SendLimiter: sl,
+		Message: m,
+		Bot:     b,
+		Limiter: l,
 	}
 }
 
 func (sm *SendableMessage) createWhat() interface{} {
 	var what interface{}
-	if sm.Content != "" && sm.File != nil {
-		what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + sm.File.Filename), Caption: sm.Content}
-		fmt.Println(what.(*tele.Photo).File.FileURL)
-	} else if sm.Content != "" {
-		what = sm.Content
-	} else if sm.File != nil {
-		what = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + sm.File.Filename)}
+
+	if sm.Text != nil {
+		what = sm.Text
+	} else {
+		what = sm.Photo
 	}
 
 	return what
 }
 
-func (sm *SendableMessage) sendWithLimit(b *tele.Bot, r tele.Recipient, opt *tele.SendOptions) error {
-	chatID := r.Recipient()
+func (sm *SendableMessage) sendWithLimit() error {
+	chatID := sm.Recipient.Recipient()
 
-	userRateLimiter := sm.SendLimiter.GetUserRateLimiter(chatID)
+	userRateLimiter := sm.Limiter.GetUserRateLimiter(chatID)
 	if userRateLimiter == nil {
-		sm.SendLimiter.AddUserRateLimiter(chatID)
-		userRateLimiter = sm.SendLimiter.GetUserRateLimiter(chatID)
+		sm.Limiter.AddUserRateLimiter(chatID)
+		userRateLimiter = sm.Limiter.GetUserRateLimiter(chatID)
 	}
 
-	err := userRateLimiter.RateLimiter.Wait(sm.SendLimiter.Ctx)
+	err := userRateLimiter.RateLimiter.Wait(sm.Limiter.Ctx)
 	if err != nil {
 		return err
 	}
 
-	err = sm.SendLimiter.GlobalRateLimiter.Wait(sm.SendLimiter.Ctx)
+	err = sm.Limiter.GlobalRateLimiter.Wait(sm.Limiter.Ctx)
 	if err != nil {
 		return err
 	}
 
 	what := sm.createWhat()
 
-	_, err = b.Send(r, what, opt)
+	_, err = sm.Bot.Send(sm.Recipient, what, sm.SendOptions)
 	if err != nil {
 		return err
 	}
@@ -69,6 +66,6 @@ func (sm *SendableMessage) sendWithLimit(b *tele.Bot, r tele.Recipient, opt *tel
 
 }
 
-func (sm *SendableMessage) Send(b *tele.Bot, r tele.Recipient, opt *tele.SendOptions) error {
-	return sm.sendWithLimit(b, r, opt)
+func (sm *SendableMessage) Send() error {
+	return sm.sendWithLimit()
 }

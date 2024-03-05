@@ -28,12 +28,12 @@ func newMessage(db *gorm.DB, opts ...gen.DOOption) message {
 	tableName := _message.messageDo.TableName()
 	_message.ALL = field.NewAsterisk(tableName)
 	_message.ID = field.NewString(tableName, "id")
-	_message.Sort = field.NewInt32(tableName, "sort")
 	_message.DateCreated = field.NewTime(tableName, "date_created")
-	_message.Content = field.NewString(tableName, "content")
 	_message.Image = field.NewString(tableName, "image")
 	_message.Type = field.NewString(tableName, "type")
-	_message.Group_ = field.NewString(tableName, "group")
+	_message.Text = field.NewString(tableName, "text")
+	_message.Caption = field.NewString(tableName, "caption")
+	_message.Variant = field.NewInt32(tableName, "variant")
 
 	_message.fillFieldMap()
 
@@ -45,12 +45,12 @@ type message struct {
 
 	ALL         field.Asterisk
 	ID          field.String
-	Sort        field.Int32
 	DateCreated field.Time
-	Content     field.String
 	Image       field.String
 	Type        field.String
-	Group_      field.String
+	Text        field.String
+	Caption     field.String
+	Variant     field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -68,12 +68,12 @@ func (m message) As(alias string) *message {
 func (m *message) updateTableName(table string) *message {
 	m.ALL = field.NewAsterisk(table)
 	m.ID = field.NewString(table, "id")
-	m.Sort = field.NewInt32(table, "sort")
 	m.DateCreated = field.NewTime(table, "date_created")
-	m.Content = field.NewString(table, "content")
 	m.Image = field.NewString(table, "image")
 	m.Type = field.NewString(table, "type")
-	m.Group_ = field.NewString(table, "group")
+	m.Text = field.NewString(table, "text")
+	m.Caption = field.NewString(table, "caption")
+	m.Variant = field.NewInt32(table, "variant")
 
 	m.fillFieldMap()
 
@@ -92,12 +92,12 @@ func (m *message) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (m *message) fillFieldMap() {
 	m.fieldMap = make(map[string]field.Expr, 7)
 	m.fieldMap["id"] = m.ID
-	m.fieldMap["sort"] = m.Sort
 	m.fieldMap["date_created"] = m.DateCreated
-	m.fieldMap["content"] = m.Content
 	m.fieldMap["image"] = m.Image
 	m.fieldMap["type"] = m.Type
-	m.fieldMap["group"] = m.Group_
+	m.fieldMap["text"] = m.Text
+	m.fieldMap["caption"] = m.Caption
+	m.fieldMap["variant"] = m.Variant
 }
 
 func (m message) clone(db *gorm.DB) message {

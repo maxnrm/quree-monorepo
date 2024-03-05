@@ -14,10 +14,8 @@ const TableNameUserEventVisit = "user_event_visits"
 type UserEventVisit struct {
 	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
-	UserID      string    `gorm:"column:user_id;type:uuid;not null" json:"user_id"`
-	QuizID      *string   `gorm:"column:quiz_id;type:uuid" json:"quiz_id"`
-	AdminID     *string   `gorm:"column:admin_id;type:uuid" json:"admin_id"`
-	EventType   string    `gorm:"column:event_type;type:character varying(255);not null;default:EVENT" json:"event_type"`
+	UserChatID  *string   `gorm:"column:user_chat_id;type:character varying(255)" json:"user_chat_id"`
+	AdminChatID *string   `gorm:"column:admin_chat_id;type:character varying(255)" json:"admin_chat_id"`
 }
 
 // TableName UserEventVisit's table name

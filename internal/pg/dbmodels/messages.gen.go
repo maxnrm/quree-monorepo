@@ -13,12 +13,12 @@ const TableNameMessage = "messages"
 // Message mapped from table <messages>
 type Message struct {
 	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
-	Sort        *int32    `gorm:"column:sort;type:integer" json:"sort"`
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
-	Content     *string   `gorm:"column:content;type:text" json:"content"`
 	Image       *string   `gorm:"column:image;type:uuid" json:"image"`
-	Type        string    `gorm:"column:type;type:character varying(255);not null;default:NULL" json:"type"`
-	Group_      string    `gorm:"column:group;type:character varying(255);not null;default:NULL" json:"group"`
+	Type        string    `gorm:"column:type;type:character varying(255);not null;index:messages_type,priority:1;default:NULL" json:"type"`
+	Text        *string   `gorm:"column:text;type:character varying(255)" json:"text"`
+	Caption     *string   `gorm:"column:caption;type:character varying(255)" json:"caption"`
+	Variant     *int32    `gorm:"column:variant;type:integer" json:"variant"`
 }
 
 // TableName Message's table name

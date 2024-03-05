@@ -39,10 +39,10 @@ func main() {
 
 	g.ApplyBasic(
 		g.GenerateModelAs("users", "User"),
+		g.GenerateModelAs("admins", "Admin"),
 		g.GenerateModelAs("messages", "Message"),
 		g.GenerateModelAs("user_event_visits", "UserEventVisit"),
 		g.GenerateModelAs("directus_files", "File"),
-		g.GenerateModelAs("quizes", "Quiz"),
 	)
 
 	// Execute the generator

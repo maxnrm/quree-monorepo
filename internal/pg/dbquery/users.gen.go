@@ -30,9 +30,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ID = field.NewString(tableName, "id")
 	_user.DateCreated = field.NewTime(tableName, "date_created")
 	_user.QrCode = field.NewString(tableName, "qr_code")
-	_user.Role = field.NewString(tableName, "role")
 	_user.ChatID = field.NewString(tableName, "chat_id")
-	_user.PhoneNumber = field.NewString(tableName, "phone_number")
+	_user.QuizCityName = field.NewString(tableName, "quiz_city_name")
 
 	_user.fillFieldMap()
 
@@ -42,13 +41,12 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo
 
-	ALL         field.Asterisk
-	ID          field.String
-	DateCreated field.Time
-	QrCode      field.String
-	Role        field.String
-	ChatID      field.String
-	PhoneNumber field.String
+	ALL          field.Asterisk
+	ID           field.String
+	DateCreated  field.Time
+	QrCode       field.String
+	ChatID       field.String
+	QuizCityName field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -68,9 +66,8 @@ func (u *user) updateTableName(table string) *user {
 	u.ID = field.NewString(table, "id")
 	u.DateCreated = field.NewTime(table, "date_created")
 	u.QrCode = field.NewString(table, "qr_code")
-	u.Role = field.NewString(table, "role")
 	u.ChatID = field.NewString(table, "chat_id")
-	u.PhoneNumber = field.NewString(table, "phone_number")
+	u.QuizCityName = field.NewString(table, "quiz_city_name")
 
 	u.fillFieldMap()
 
@@ -87,13 +84,12 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 6)
+	u.fieldMap = make(map[string]field.Expr, 5)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["date_created"] = u.DateCreated
 	u.fieldMap["qr_code"] = u.QrCode
-	u.fieldMap["role"] = u.Role
 	u.fieldMap["chat_id"] = u.ChatID
-	u.fieldMap["phone_number"] = u.PhoneNumber
+	u.fieldMap["quiz_city_name"] = u.QuizCityName
 }
 
 func (u user) clone(db *gorm.DB) user {
