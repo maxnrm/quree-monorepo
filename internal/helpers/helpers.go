@@ -1,8 +1,11 @@
 package helpers
 
 import (
+	"log"
 	"quree/internal/models"
 	"quree/internal/models/enums"
+
+	tele "gopkg.in/telebot.v3"
 )
 
 //write a function to convert models.UUID to string and return pointer
@@ -90,5 +93,18 @@ func GetMessageTypeByCount(count int) enums.MessageType {
 		return enums.LORE_EVENT_EXTRA
 	default:
 		return enums.START
+	}
+}
+
+func BotMiniLogger() tele.MiddlewareFunc {
+	l := log.Default()
+
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(c tele.Context) error {
+			chatID := c.Chat().ID
+			text := c.Message().Text
+			l.Println(chatID, text, "ok")
+			return next(c)
+		}
 	}
 }

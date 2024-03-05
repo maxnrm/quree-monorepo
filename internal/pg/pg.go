@@ -73,13 +73,12 @@ func (pg *pg) CreateUser(user *models.User) error {
 
 }
 
-func (pg *pg) GetUserByChatID(chatID string) (models.UUID, error) {
+func (pg *pg) GetUserByChatID(chatID string) *dbmodels.User {
 	var user dbmodels.User
 	// get user by chatID and Role
 	result := pg.Where("chat_id = ?", chatID).First(&user)
-
 	if result.Error != nil {
-		return "", result.Error
+		return nil
 	}
 
 	return models.UUID(user.ID), nil
@@ -136,7 +135,7 @@ func (pg *pg) GetMessagesByType(messageType enums.MessageType) *models.SendableM
 	var photo *tele.Photo
 	if message.Image != nil {
 		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + message.Image + ".jpg"
-		photo = &tele.Photo{File: tele.FromURL(config.IMGPROXY_PUBLIC_URL + "/" + message.Image), Caption: message.Caption}
+		photo = &tele.Photo{File: tele.FromURL(photoURL), Caption: message.Caption}
 	}
 
 	return &models.SendableMessage{
