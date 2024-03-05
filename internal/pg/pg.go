@@ -42,35 +42,11 @@ func Init(connString string) *pg {
 }
 
 // function to create user
-func (pg *pg) CreateUser(user *models.User) error {
+func (pg *pg) CreateUser(user *dbmodels.User) error {
 
-	var result *gorm.DB
-
-	if user.Role == enums.ADMIN {
-		result = pg.Create(&dbmodels.User{
-			ID:          uuid.New().String(),
-			ChatID:      &user.ChatID,
-			PhoneNumber: &user.PhoneNumber,
-			DateCreated: time.Now(),
-			Role:        string(user.Role),
-			QrCode:      nil,
-		})
-
-	} else if user.Role == enums.USER {
-		qrCodeStr := string(user.QRCode)
-
-		result = pg.Create(&dbmodels.User{
-			ID:          uuid.New().String(),
-			ChatID:      &user.ChatID,
-			PhoneNumber: &user.PhoneNumber,
-			DateCreated: time.Now(),
-			Role:        string(user.Role),
-			QrCode:      &qrCodeStr,
-		})
-	}
+	result = pg.Create(user)
 
 	return result.Error
-
 }
 
 func (pg *pg) GetUserByChatID(chatID string) *dbmodels.User {

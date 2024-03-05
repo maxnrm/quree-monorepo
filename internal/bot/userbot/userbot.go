@@ -24,7 +24,6 @@ import (
 )
 
 var ctx = context.Background()
-var Bot *tele.Bot = Init()
 var SendLimiter = sendlimiter.Init(ctx)
 var db = pg.DB
 var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
@@ -179,13 +178,14 @@ func registerHandler(c tele.Context) error {
 		return c.Send(err.Error())
 	}
 
-	err = db.CreateUser(&models.User{
-		ChatID: chatID,
-		QRCode: models.UUID(qrCodeUUID),
+	err = db.CreateUser(&dbmodels.User{
+		ID:          uuid.New().String(),
+		DateCreated: time.Now(),
+		ChatID:      chatID,
+		QrCode:      qrCodeUUID,
 	})
-
 	if err != nil {
-		return c.Send(err.Error())
+		fmt.Println("error creating user:", err)
 	}
 
 	return helpHandler(c)
