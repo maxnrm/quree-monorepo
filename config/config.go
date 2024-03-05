@@ -28,8 +28,13 @@ var ADMIN_AUTH_CODE = getenvStr("ADMIN_AUTH_CODE", "")
 
 // MESSAGES
 var NATS_MESSAGES_STREAM = getenvStr("NATS_MESSAGES_STREAM", "tg-messages")
-var NATS_MESSAGES_CONSUMER = getenvStr("NATS_MESSAGES_CONSUMER", "tg-messages-consumer")
-var NATS_MESSAGES_SUBJECT = getenvStr("NATS_MESSAGES_SUBJECT", "messages.*")
+var NATS_RECEIVER_MESSAGES_SUBJECT = getenvStr("NATS_MESSAGES_SUBJECT", "tg.messages.*")
+
+var NATS_USER_MESSAGES_CONSUMER = getenvStr("NATS_MESSAGES_CONSUMER", "tg-messages-user-consumer")
+var NATS_ADMIN_MESSAGES_CONSUMER = getenvStr("NATS_MESSAGES_CONSUMER", "tg-messages-admin-consumer")
+
+var NATS_USER_MESSAGES_SUBJECT = getenvStr("NATS_MESSAGES_SUBJECT", "tg.messages.user")
+var NATS_ADMIN_MESSAGES_SUBJECT = getenvStr("NATS_MESSAGES_SUBJECT", "tg.messages.admin")
 
 var RATE_LIMIT_GLOBAL = getenvInt("RATE_LIMIT_GLOBAL", 30)
 var RATE_LIMIT_BURST_GLOBAL = getenvInt("RATE_LIMIT_BURST_GLOBAL", 30)

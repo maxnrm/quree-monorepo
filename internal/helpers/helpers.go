@@ -19,21 +19,6 @@ func UUIDToString(uuid models.UUID) *string {
 	return &str
 }
 
-// write a function to convert from string to enums.UserRole by switching value between const of type UserRole
-// assume all values capitalized, and const names too
-// if not found return only default value
-
-func StringToUserRole(str string) enums.UserRole {
-	switch str {
-	case "ADMIN":
-		return enums.ADMIN
-	case "USER":
-		return enums.USER
-	default:
-		return enums.USER
-	}
-}
-
 // write a function to convert from string to enums.MessageType by switching value between const of type MessageType
 // assume all values capitalized, and const names too
 // if not found return only default value

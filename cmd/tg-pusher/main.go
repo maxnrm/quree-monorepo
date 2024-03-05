@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"quree/config"
-	"quree/internal/bot"
 	"quree/internal/models"
 	"quree/internal/nats"
 	"quree/internal/pg"
@@ -20,45 +19,65 @@ import (
 var wg sync.WaitGroup
 var db = pg.DB
 var ctx = context.Background()
-var sl = sendlimiter.Init(ctx)
-var botSender = bot.Init(&bot.BotConfig{
-	Settings: &tele.Settings{
-		Token:  config.USER_BOT_TOKEN,
-		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
-	},
-})
 
-var streamConfig = jetstream.StreamConfig{
-	Name:      config.NATS_MESSAGES_STREAM,
-	Subjects:  []string{config.NATS_MESSAGES_SUBJECT},
-	Retention: jetstream.WorkQueuePolicy,
-	Storage:   jetstream.FileStorage,
-}
+var userSl = sendlimiter.Init(ctx)
+var adminSl = sendlimiter.Init(ctx)
 
 var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
 	Ctx: ctx,
 	URL: config.NATS_URL,
 })
 
-var consumerConfig = jetstream.ConsumerConfig{
-	Durable:       config.NATS_MESSAGES_CONSUMER,
+var userBotSender, _ = tele.NewBot(tele.Settings{
+	Token:  config.USER_BOT_TOKEN,
+	Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+})
+
+var adminBotSender, _ = tele.NewBot(tele.Settings{
+	Token:  config.ADMIN_BOT_TOKEN,
+	Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+})
+
+var streamConfig = jetstream.StreamConfig{
+	Name:      config.NATS_MESSAGES_STREAM,
+	Subjects:  []string{config.NATS_RECEIVER_MESSAGES_SUBJECT},
+	Retention: jetstream.WorkQueuePolicy,
+	Storage:   jetstream.FileStorage,
+}
+
+var userConsumerConfig = jetstream.ConsumerConfig{
+	Durable:       config.NATS_USER_MESSAGES_CONSUMER,
+	AckWait:       2 * time.Second,
+	MaxAckPending: 60,
+	MemoryStorage: true,
+}
+
+var adminConsumerConfig = jetstream.ConsumerConfig{
+	Durable:       config.NATS_ADMIN_MESSAGES_CONSUMER,
 	AckWait:       2 * time.Second,
 	MaxAckPending: 60,
 	MemoryStorage: true,
 }
 
 func main() {
-	go sl.RemoveOldUserRateLimitersCache()
+	go userSl.RemoveOldUserRateLimitersCache()
+	go adminSl.RemoveOldUserRateLimitersCache()
 
 	nc.CreateStream(streamConfig)
 
-	cons := nc.CreateConsumer(streamConfig.Name, consumerConfig)
+	userCons := nc.CreateConsumer(streamConfig.Name, userConsumerConfig)
+	userMessageHandler := createConsumeHandler(ctx, userBotSender, userSl)
 
-	messageHandler := createConsumeHandler(ctx, botSender, sl)
+	adminCons := nc.CreateConsumer(streamConfig.Name, adminConsumerConfig)
+	adminMessageHandler := createConsumeHandler(ctx, userBotSender, adminSl)
 
-	wg.Add(1)
-	go cons.Consume(messageHandler)
+	wg.Add(2)
+
+	go userCons.Consume(userMessageHandler)
+	go adminCons.Consume(adminMessageHandler)
+
 	fmt.Println("Consuming...")
+
 	wg.Wait()
 }
 

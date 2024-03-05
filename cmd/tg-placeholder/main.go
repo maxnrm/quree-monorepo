@@ -46,9 +46,14 @@ func MiniLogger() tele.MiddlewareFunc {
 
 func startHandler(c tele.Context) error {
 
-	sm := models.CreateSendableMessage(SendLimiter, &models.Message{
-		Content: "Добро пожаловать! Мой функционал будет доступен в дни фестиваля \"Действуй\" 😌",
-	}, nil)
+	text := "Добро пожаловать! Мой функционал будет доступен в дни фестиваля \"Действуй\" 😌"
 
-	return sm.Send(c.Bot(), c.Chat(), &tele.SendOptions{})
+	message := &models.SendableMessage{
+		Text: &text,
+	}
+
+	message.Bot = c.Bot()
+	message.Limiter = sendlimiter.Init(ctx)
+
+	return message.Send()
 }
