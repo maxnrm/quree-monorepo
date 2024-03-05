@@ -1,7 +1,8 @@
 server {
     listen       80;
+    server quree.maxnrm.monster;
 
-    location /webapp/admin/ {
+    location ~ /webapp/admin {
         root   /usr/share/nginx/html;
         index  admin.html;
     }
