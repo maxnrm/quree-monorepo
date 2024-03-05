@@ -1,15 +1,10 @@
 package enums
 
-type UserRole string
 type MessageType string
 
 const (
-	ADMIN UserRole = "ADMIN"
-	USER  UserRole = "USER"
-)
-
-const (
 	HELP             MessageType = "HELP"
+	ADMIN_HELP       MessageType = "HELP"
 	START            MessageType = "START"
 	LORE_EVENT1      MessageType = "LORE_EVENT1"
 	LORE_EVENT2      MessageType = "LORE_EVENT2"

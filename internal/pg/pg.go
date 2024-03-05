@@ -41,7 +41,13 @@ func Init(connString string) *pg {
 	return pg
 }
 
-// function to create user
+func (pg *pg) CreateAdmin(admin *dbmodels.Admin) error {
+
+	result = pg.Create(admin)
+
+	return result.Error
+}
+
 func (pg *pg) CreateUser(user *dbmodels.User) error {
 
 	result = pg.Create(user)
@@ -49,15 +55,26 @@ func (pg *pg) CreateUser(user *dbmodels.User) error {
 	return result.Error
 }
 
+func (pg *pg) GetAdminByChatID(chatID string) *dbmodels.Admin {
+	var admin *dbmodels.Admin
+	// get user by chatID and Role
+	result := pg.Where("chat_id = ?", chatID).First(&admin)
+	if result.Error != nil {
+		return nil
+	}
+
+	return admin
+}
+
 func (pg *pg) GetUserByChatID(chatID string) *dbmodels.User {
-	var user dbmodels.User
+	var user *dbmodels.User
 	// get user by chatID and Role
 	result := pg.Where("chat_id = ?", chatID).First(&user)
 	if result.Error != nil {
 		return nil
 	}
 
-	return models.UUID(user.ID), nil
+	return user
 }
 
 // function to UploadFile in s3 and create record in db in table Files

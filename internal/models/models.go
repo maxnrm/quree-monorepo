@@ -3,10 +3,10 @@ package models
 type UUID string
 
 type User struct {
-	ID           UUID   `json:"id"`
-	ChatID       string `json:"chat_id"`
-	QRCode       UUID   `json:"qr_code"`
-	QuizCityName string `json:"quiz_city_name"`
+	ID           UUID    `json:"id"`
+	ChatID       string  `json:"chat_id"`
+	QRCode       UUID    `json:"qr_code"`
+	QuizCityName *string `json:"quiz_city_name"`
 }
 
 type Admin struct {

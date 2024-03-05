@@ -14,7 +14,7 @@ const TableNameAdmin = "admins"
 type Admin struct {
 	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
-	ChatID      *string   `gorm:"column:chat_id;type:character varying(255);default:NULL" json:"chat_id"`
+	ChatID      string    `gorm:"column:chat_id;type:character varying(255);not null;default:NULL" json:"chat_id"`
 }
 
 // TableName Admin's table name

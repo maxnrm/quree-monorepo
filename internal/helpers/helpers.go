@@ -61,21 +61,6 @@ func StringToMessageType(str string) enums.MessageType {
 	}
 }
 
-// write a function to convert from string to enums.EventType by switching value between const of type EventType
-// assume all values capitalized, and const names too
-// if not found return only default value
-
-func StringToEventType(str string) enums.EventType {
-	switch str {
-	case "EVENT":
-		return enums.EVENT
-	case "QUIZ":
-		return enums.QUIZ
-	default:
-		return enums.EVENT
-	}
-}
-
 // function to get models.MessageType by count of UserEventVisit
 // 1 - LORE_EVENT1, 2 - LORE_EVENT2, 3 - LORE_EVENT3, 4 - LORE_EVENT4, 5 and more - LORE_EVENT_EXTRA
 
