@@ -1,7 +1,7 @@
 server {
     listen       80;
 
-    location /webapp/admin {
+    location /webapp/admin/ {
         root   /usr/share/nginx/html;
         index  admin.html;
     }
