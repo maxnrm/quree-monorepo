@@ -1,6 +1,6 @@
 server {
     listen       80;
-    server quree.maxnrm.monster;
+    server_name quree.maxnrm.monster;
 
     location ~ /webapp/admin {
         root   /usr/share/nginx/html;
