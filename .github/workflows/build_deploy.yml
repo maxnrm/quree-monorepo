@@ -57,17 +57,17 @@ jobs:
           tag_with_latest: true
           build_file: ./build/tg-pusher/Dockerfile
 
-      - name: Kaniko build tg-placeholder
-        uses: aevea/action-kaniko@v0.10.0
-        with:
-          registry: ${{ vars.DOCKER_REGISTRY }}
-          username: ${{ secrets.DOCKER_REGISTRY_USER }}
-          password: ${{ steps.iam-token-generation.outputs.iam-token }}
-          image: quree-tg-placeholder
-          extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
-          tag: ${{ env.RELEASE_VERSION }}
-          tag_with_latest: true
-          build_file: ./build/tg-placeholder/Dockerfile
+      # - name: Kaniko build tg-placeholder
+      #   uses: aevea/action-kaniko@v0.10.0
+      #   with:
+      #     registry: ${{ vars.DOCKER_REGISTRY }}
+      #     username: ${{ secrets.DOCKER_REGISTRY_USER }}
+      #     password: ${{ steps.iam-token-generation.outputs.iam-token }}
+      #     image: quree-tg-placeholder
+      #     extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
+      #     tag: ${{ env.RELEASE_VERSION }}
+      #     tag_with_latest: true
+      #     build_file: ./build/tg-placeholder/Dockerfile
   deploy:
     needs: [build]
     runs-on: ubuntu-latest
@@ -92,4 +92,4 @@ jobs:
           --set apps.tg-miniapp.image.tag=${{ env.RELEASE_VERSION }} \
           --set apps.tg-update.image.tag=${{ env.RELEASE_VERSION }} \
           --set apps.tg-pusher.image.tag=${{ env.RELEASE_VERSION }} \
-          --set apps.tg-placeholder.image.tag=${{ env.RELEASE_VERSION }} \
+          --set apps.tg-placeholder.image.tag=v11 \
