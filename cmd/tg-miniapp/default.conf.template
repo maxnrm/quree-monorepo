@@ -1,6 +1,10 @@
 server {
     listen       80;
-    server_name  localhost;
+
+    location /webapp/admin {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
 
     location / {
         root   /usr/share/nginx/html;
