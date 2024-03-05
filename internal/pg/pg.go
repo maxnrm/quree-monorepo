@@ -6,15 +6,13 @@ import (
 	"quree/config"
 	"time"
 
-	"quree/internal/helpers"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 
 	"quree/internal/pg/dbmodels"
 	"quree/internal/pg/dbquery"
 
-	"github.com/google/uuid"
-
+	tele "gopkg.in/telebot.v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -43,14 +41,14 @@ func Init(connString string) *pg {
 
 func (pg *pg) CreateAdmin(admin *dbmodels.Admin) error {
 
-	result = pg.Create(admin)
+	result := pg.Create(admin)
 
 	return result.Error
 }
 
 func (pg *pg) CreateUser(user *dbmodels.User) error {
 
-	result = pg.Create(user)
+	result := pg.Create(user)
 
 	return result.Error
 }
@@ -117,45 +115,49 @@ func (pg *pg) GetFileRecordByID(id models.UUID) *models.File {
 }
 
 // function to get messages by type
-func (pg *pg) GetMessagesByType(messageType enums.MessageType) *models.SendableMessage {
+func (pg *pg) GetMessagesByType(messageType enums.MessageType) []*models.SendableMessage {
 
-	var message dbmodels.Message
-	result := pg.Where("type = ?", messageType).First(&message)
+	var messages []dbmodels.Message
+	result := pg.Where("type = ?", messageType).Find(&messages)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
 	}
 
-	var photo *tele.Photo
-	if message.Image != nil {
-		photoURL := config.IMGPROXY_PUBLIC_URL + "/" + message.Image + ".jpg"
-		photo = &tele.Photo{File: tele.FromURL(photoURL), Caption: message.Caption}
+	var sendableMessages []*models.SendableMessage
+
+	for _, message := range messages {
+		photo := &tele.Photo{}
+		if message.Image != nil {
+			photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *message.Image + ".jpg"
+			photo = &tele.Photo{File: tele.FromURL(photoURL)}
+		}
+
+		if message.Caption != nil {
+			photo.Caption = *message.Caption
+		}
+
+		sendableMessages = append(sendableMessages, &models.SendableMessage{
+			Text:  message.Text,
+			Photo: photo,
+		})
 	}
 
-	return &models.SendableMessage{
-		Text:   *message.Text,
-		Photo: *message.Image,
+	return sendableMessages
 }
 
-func (pg *pg) CreateUserEventVisit(visit *models.UserEventVisit) error {
+func (pg *pg) CreateUserEventVisit(visit *dbmodels.UserEventVisit) error {
 
-	result := pg.Create(&dbmodels.UserEventVisit{
-		ID:          uuid.New().String(),
-		UserID:      string(visit.UserID),
-		DateCreated: time.Now(),
-		EventType:   string(visit.Type),
-		AdminID:     helpers.UUIDToString(visit.AdminID),
-		QuizID:      helpers.UUIDToString(visit.QuizID),
-	})
+	result := pg.Create(visit)
 
 	return result.Error
 }
 
 // method to count UserEventVisits for user, counting only events with type EVENT
 
-func (pg *pg) CountUserEventVisitsForUser(userID models.UUID) int64 {
+func (pg *pg) CountUserEventVisitsForUser(userChatID string) int64 {
 
 	var count int64
-	result := pg.Model(&dbmodels.UserEventVisit{}).Where("user_id = ? AND event_type = ?", userID, string(enums.EVENT)).Count(&count)
+	result := pg.Model(&dbmodels.UserEventVisit{}).Where("user_id = ?", userChatID).Count(&count)
 
 	if result.Error != nil {
 		return 0
@@ -166,10 +168,10 @@ func (pg *pg) CountUserEventVisitsForUser(userID models.UUID) int64 {
 
 // method to get latest UserEventVisit for user, counting only events with type EVENT
 
-func (pg *pg) GetLatestUserEventVisitByUserID(userID models.UUID) (time.Time, error) {
+func (pg *pg) GetLatestUserEventVisitByUserChatID(userChatID string) (time.Time, error) {
 
 	var visit dbmodels.UserEventVisit
-	result := pg.Where("user_id = ? AND event_type = ?", userID, string(enums.EVENT)).Order("date_created desc").First(&visit)
+	result := pg.Where("user_id = ?", userChatID).Order("date_created desc").First(&visit)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return time.Now().Add(-10 * time.Minute), nil

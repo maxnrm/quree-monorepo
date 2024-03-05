@@ -46,14 +46,18 @@ var streamConfig = jetstream.StreamConfig{
 }
 
 var userConsumerConfig = jetstream.ConsumerConfig{
+	Name:          config.NATS_USER_MESSAGES_CONSUMER,
 	Durable:       config.NATS_USER_MESSAGES_CONSUMER,
+	FilterSubject: config.NATS_USER_MESSAGES_SUBJECT + ".*",
 	AckWait:       2 * time.Second,
 	MaxAckPending: 60,
 	MemoryStorage: true,
 }
 
 var adminConsumerConfig = jetstream.ConsumerConfig{
+	Name:          config.NATS_ADMIN_MESSAGES_CONSUMER,
 	Durable:       config.NATS_ADMIN_MESSAGES_CONSUMER,
+	FilterSubject: config.NATS_ADMIN_MESSAGES_SUBJECT + ".*",
 	AckWait:       2 * time.Second,
 	MaxAckPending: 60,
 	MemoryStorage: true,
@@ -69,7 +73,7 @@ func main() {
 	userMessageHandler := createConsumeHandler(ctx, userBotSender, userSl)
 
 	adminCons := nc.CreateConsumer(streamConfig.Name, adminConsumerConfig)
-	adminMessageHandler := createConsumeHandler(ctx, userBotSender, adminSl)
+	adminMessageHandler := createConsumeHandler(ctx, adminBotSender, adminSl)
 
 	wg.Add(2)
 

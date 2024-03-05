@@ -82,7 +82,7 @@ func registerHandler(c tele.Context) error {
 			return err
 		}
 
-		nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT, json)
+		nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT+"."+chatID, json)
 
 		c.Bot().SetMenuButton(c.Sender(), menuButton)
 	}
@@ -102,7 +102,7 @@ func registerHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT, json)
+	nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT+"."+chatID, json)
 
 	c.Bot().SetMenuButton(c.Sender(), menuButton)
 
@@ -133,7 +133,7 @@ func CheckAuthorize() tele.MiddlewareFunc {
 					return err
 				}
 
-				nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT, json)
+				nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT+"."+chatID, json)
 			}
 
 			l.Println("Админ", chatID, "авторизован")

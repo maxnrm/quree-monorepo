@@ -6,13 +6,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"quree/config"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/nats"
 	"quree/internal/pg"
+	"quree/internal/pg/dbmodels"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -44,50 +44,36 @@ func Healthcheck(c *gin.Context) {
 
 func CreateUserEventVisit(c *gin.Context) {
 
-	// json consists of two fields - user_id and admin_id
+	// json consists of two significant fields - user_chat_id and admin_chat_id
 
 	var qrCodeMessage models.QRCodeMessage
 
 	err := c.BindJSON(&qrCodeMessage)
 	if err != nil {
-		fmt.Println("Error binding json")
+		fmt.Println("error binding json")
 		c.JSON(400, gin.H{"error": "bad request"})
 		return
 	}
+
+	userChatID := qrCodeMessage.UserChatID
+	adminChatID := qrCodeMessage.AdminChatID
 
 	fmt.Println(qrCodeMessage)
 
-	userID, err := db.GetUserIDByChatIDAndRole(qrCodeMessage.ChatID, enums.USER)
-	if err != nil {
-		c.JSON(400, gin.H{"error": "bad request"})
-		return
-	}
-
-	latestEventVisit, _ := db.GetLatestUserEventVisitByUserID(userID)
-	if time.Since(latestEventVisit).Minutes() < 5 {
+	latestEventVisit, _ := db.GetLatestUserEventVisitByUserChatID(userChatID)
+	if time.Since(latestEventVisit).Minutes() < float64(config.EVENT_VISIT_DELAY_MINUTES) {
 		c.JSON(201, gin.H{"status": "scanned recently"})
 		return
 	}
 
-	adminID, err := db.GetUserIDByChatIDAndRole(qrCodeMessage.AdminChatID, enums.ADMIN)
-	if err != nil {
-		c.JSON(400, gin.H{"error": "bad request"})
-		return
+	visit := dbmodels.UserEventVisit{
+		UserChatID:  userChatID,
+		AdminChatID: adminChatID,
 	}
-
-	visit := models.UserEventVisit{
-		UserID:  userID,
-		AdminID: adminID,
-		Type:    enums.EVENT,
-	}
-
-	data, _ := json.Marshal(visit)
-
-	fmt.Println(string(data))
 
 	db.CreateUserEventVisit(&visit)
 
-	numberOfEvents := db.CountUserEventVisitsForUser(userID)
+	numberOfEvents := db.CountUserEventVisitsForUser(userChatID)
 	var eventType enums.MessageType
 
 	// switch number of events to send different messages
@@ -107,47 +93,17 @@ func CreateUserEventVisit(c *gin.Context) {
 		eventType = enums.LORE_EVENT_EXTRA
 	}
 
-	msgs := db.GetMessagesByType(eventType)
+	messages := db.GetMessagesByType(eventType)
 
-	if msgs != nil {
-		fmt.Println("Messages not nil")
-		//create a slice of msgs[i].Group to send to nats
-		groupMap := make(map[int]bool)
-		var uniqueGroups []int
+	message := messages[rand.Intn(len(messages))]
 
-		for _, obj := range msgs {
-			if _, exists := groupMap[obj.Group]; !exists {
-				groupMap[obj.Group] = true
-				uniqueGroups = append(uniqueGroups, obj.Group)
-			}
-		}
-
-		// Pick a random value from the uniqueGroups slice
-		randomGroup := uniqueGroups[rand.Intn(len(uniqueGroups))]
-		fmt.Println(uniqueGroups)
-		var filtered []models.Message
-		for _, obj := range msgs {
-			if obj.Group == randomGroup {
-				filtered = append(filtered, obj)
-			}
-		}
-
-		for _, m := range filtered {
-
-			fmt.Println(m.Sort)
-
-			msg, err := json.Marshal(&models.MessageWithRecipient{
-				ChatID:  qrCodeMessage.ChatID,
-				Message: m,
-			})
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			nc.NC.Publish(config.NATS_MESSAGES_SUBJECT, msg)
-		}
+	json, err := json.Marshal(message)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "internal server error"})
+		return
 	}
+
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
 
 	c.JSON(200, gin.H{"status": "created"})
 }

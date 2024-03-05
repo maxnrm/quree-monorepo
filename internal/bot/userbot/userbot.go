@@ -59,35 +59,42 @@ func Init() *tele.Bot {
 
 func startHandler(c tele.Context) error {
 
-	msg := db.GetMessagesByType(enums.START)
-	json, err := json.Marshal(msg)
+	chatID := fmt.Sprint(c.Chat().ID)
+
+	messages := db.GetMessagesByType(enums.START)
+	message := messages[0]
+	json, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
 
 	return nil
 }
 
 func helpHandler(c tele.Context) error {
 
-	msg := db.GetMessagesByType(enums.START)
-	json, err := json.Marshal(msg)
+	chatID := fmt.Sprint(c.Chat().ID)
+
+	messages := db.GetMessagesByType(enums.START)
+	message := messages[0]
+	json, err := json.Marshal(message)
 	if err != nil {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
 
 	return nil
 }
 
 func idHandler(c tele.Context) error {
+	chatID := fmt.Sprint(c.Chat().ID)
 
 	for i := 0; i < 20; i++ {
 
-		text := fmt.Sprintf("%d", c.Chat().ID)
+		text := fmt.Sprintf("%d", chatID)
 
 		var message = models.SendableMessage{
 			Text: &text,
@@ -98,7 +105,7 @@ func idHandler(c tele.Context) error {
 			return err
 		}
 
-		nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+		nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
 	}
 
 	return nil
@@ -108,7 +115,7 @@ func qrHandler(c tele.Context) error {
 	chatID := fmt.Sprint(c.Chat().ID)
 	user := db.GetUserByChatID(chatID)
 	if user == nil {
-		return errors.New("User not found")
+		return errors.New("user not found")
 	}
 
 	photoURL := config.IMGPROXY_PUBLIC_URL + "/" + user.QrCode + ".png"
@@ -122,7 +129,7 @@ func qrHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
 
 	return nil
 }

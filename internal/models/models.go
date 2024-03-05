@@ -29,7 +29,7 @@ type File struct {
 }
 
 type QRCodeMessage struct {
-	UserChatID  string `json:"chat_id"`
-	AdminChatID string `json:"admin_chat_id,omitempty"`
+	UserChatID  string `json:"user_chat_id"`
+	AdminChatID string `json:"admin_chat_id"`
 	QRCodeID    UUID   `json:"qr_code_id"`
 }
