@@ -47,6 +47,8 @@ func Init() *tele.Bot {
 	bot.Handle("/id", idHandler)
 	bot.Handle("/register", registerHandler)
 
+	nc.UsePublishSubject(config.NATS_ADMIN_MESSAGES_SUBJECT)
+
 	return bot
 }
 
@@ -85,7 +87,7 @@ func registerHandler(c tele.Context) error {
 			return err
 		}
 
-		nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT, json)
+		nc.Publish(json)
 
 		c.Bot().SetMenuButton(c.Sender(), menuButton)
 	}
@@ -111,7 +113,7 @@ func registerHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT, json)
+	nc.Publish(json)
 
 	c.Bot().SetMenuButton(c.Sender(), menuButton)
 
@@ -145,7 +147,7 @@ func CheckAuthorize() tele.MiddlewareFunc {
 					return err
 				}
 
-				nc.NC.Publish(config.NATS_ADMIN_MESSAGES_SUBJECT, json)
+				nc.Publish(json)
 			}
 
 			l.Println("Админ", chatID, "авторизован")

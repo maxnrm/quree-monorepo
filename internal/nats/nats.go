@@ -2,6 +2,7 @@ package nats
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/nats-io/nats.go"
@@ -9,16 +10,15 @@ import (
 )
 
 type NatsSettings struct {
-	Ctx      context.Context
-	URL      string
-	Stream   string
-	Consumer string
+	Ctx context.Context
+	URL string
 }
 
 type NatsClient struct {
 	Ctx context.Context
 	NC  *nats.Conn
 	JS  jetstream.JetStream
+	PS  *string
 }
 
 func Init(settings NatsSettings) *NatsClient {
@@ -49,4 +49,16 @@ func (nc *NatsClient) CreateConsumer(stream string, consumerConfig jetstream.Con
 	}
 
 	return c
+}
+
+func (nc *NatsClient) UsePublishSubject(subject string) {
+	nc.PS = &subject
+}
+
+func (nc *NatsClient) Publish(msg []byte) error {
+	if nc.PS == nil {
+		return nc.NC.Publish("subject", msg)
+	}
+
+	return errors.New("no subject was set for publishing")
 }

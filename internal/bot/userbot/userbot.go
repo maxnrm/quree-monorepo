@@ -54,6 +54,8 @@ func Init() *tele.Bot {
 	bot.Handle("/qr", qrHandler)
 	bot.Handle("/register", registerHandler)
 
+	nc.UsePublishSubject(config.NATS_USER_MESSAGES_SUBJECT)
+
 	return bot
 }
 
@@ -73,7 +75,7 @@ func startHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.Publish(json)
 
 	return nil
 }
@@ -94,7 +96,7 @@ func helpHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.Publish(json)
 
 	return nil
 }
@@ -119,7 +121,7 @@ func idHandler(c tele.Context) error {
 			return err
 		}
 
-		nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+		nc.Publish(json)
 	}
 
 	return nil
@@ -149,7 +151,7 @@ func qrHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.Publish(json)
 
 	return nil
 }
@@ -202,7 +204,7 @@ func registerHandler(c tele.Context) error {
 	})
 
 	if err != nil {
-		return c.Send(err.Error())
+		fmt.Println("error creating qr:", err)
 	}
 
 	err = db.CreateUser(&dbmodels.User{

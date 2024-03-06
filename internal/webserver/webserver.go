@@ -34,6 +34,8 @@ func Start() {
 	router.POST("/api/user_event_visit/create", CreateUserEventVisit)
 	router.GET("/healthcheck", Healthcheck)
 
+	nc.UsePublishSubject(config.NATS_USER_MESSAGES_SUBJECT)
+
 	router.Run(fmt.Sprintf(":%s", config.USER_WEBSERVER_PORT))
 
 }
@@ -103,7 +105,7 @@ func CreateUserEventVisit(c *gin.Context) {
 		return
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
+	nc.Publish(json)
 
 	c.JSON(200, gin.H{"status": "created"})
 }
