@@ -4,7 +4,6 @@ package webserver
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"quree/config"
@@ -99,13 +98,7 @@ func CreateUserEventVisit(c *gin.Context) {
 
 	message := messages[rand.Intn(len(messages))]
 
-	json, err := json.Marshal(message)
-	if err != nil {
-		c.JSON(500, gin.H{"error": "internal server error"})
-		return
-	}
-
-	nc.Publish(json)
+	nc.Publish(message)
 
 	c.JSON(200, gin.H{"status": "created"})
 }
