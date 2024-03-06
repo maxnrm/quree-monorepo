@@ -30,6 +30,8 @@
 
         btn.onclick = function () {
             tg.showScanQrPopup({ text: "SCAN..." }, function () {
+                console.log(1)
+                console.log(tg.initDataUnsafe.user.id)
                 return false
             });
         }
@@ -39,6 +41,9 @@
             sendObject.user_chat_id = data.split(",")[0]
             sendObject.qr_code_id = data.split(",")[1]
             sendObject.admin_chat_id = String(tg.initDataUnsafe.user.id)
+
+            console.log(JSON.stringify(sendObject))
+            console.log(tg.initDataUnsafe.user.id)
 
             let div = document.createElement("div");
             div.innerHTML = JSON.stringify(sendObject);
@@ -51,8 +56,7 @@
             })
         })
 
-        tg.onEvent("webapp_scan_qr_popup_closed", function() {
-            console.log("CLOSED WEBAPP")
+        tg.onEvent("popupClosed", function() {
             tg.close()
         })
 

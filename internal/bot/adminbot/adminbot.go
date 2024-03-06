@@ -50,10 +50,28 @@ func Init() *tele.Bot {
 	// handle buttons
 	bot.Handle(replyButtons["start"], registerHandler)
 	bot.Handle(replyButtons["help"], helpHandler)
+	bot.Handle(replyButtons["get_scanner"], scannerHandler)
 
 	nc.UsePublishSubject(config.NATS_ADMIN_MESSAGES_SUBJECT)
 
 	return bot
+}
+
+func scannerHandler(c tele.Context) error {
+	chatID := fmt.Sprint(c.Chat().ID)
+	var message = &models.SendableMessage{
+		Text: &textScanner,
+		Recipient: &models.Recipient{
+			ChatID: chatID,
+		},
+		SendOptions: &tele.SendOptions{
+			ReplyMarkup: menuScanner,
+		},
+	}
+
+	nc.Publish(message)
+
+	return nil
 }
 
 func idHandler(c tele.Context) error {
@@ -68,37 +86,29 @@ func registerHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
 	user := db.GetAdminByChatID(chatID)
+	var text string
+
 	if user != nil {
-		var message = &models.SendableMessage{
-			Text: &textAlreadyRegistered,
-			Recipient: &models.Recipient{
-				ChatID: chatID,
-			},
-			SendOptions: &tele.SendOptions{
-				ReplyMarkup: menuAuthorized,
-			},
+		text = textAlreadyRegistered
+	} else {
+		text = textRegistered
+		err := db.CreateAdmin(&dbmodels.Admin{
+			ID:          uuid.New().String(),
+			DateCreated: time.Now(),
+			ChatID:      chatID,
+		})
+		if err != nil {
+			return err
 		}
-
-		nc.Publish(message)
-
-		c.Bot().SetMenuButton(c.Sender(), tele.MenuButtonDefault)
-
-		return nil
-	}
-
-	err := db.CreateAdmin(&dbmodels.Admin{
-		ID:          uuid.New().String(),
-		DateCreated: time.Now(),
-		ChatID:      chatID,
-	})
-	if err != nil {
-		return err
 	}
 
 	var message = &models.SendableMessage{
-		Text: &textRegistered,
+		Text: &text,
 		Recipient: &models.Recipient{
 			ChatID: chatID,
+		},
+		SendOptions: &tele.SendOptions{
+			ReplyMarkup: menuAuthorized,
 		},
 	}
 
@@ -106,7 +116,7 @@ func registerHandler(c tele.Context) error {
 
 	c.Bot().SetMenuButton(c.Sender(), tele.MenuButtonDefault)
 
-	return err
+	return nil
 }
 
 func CheckAuthorize() tele.MiddlewareFunc {
@@ -134,6 +144,8 @@ func CheckAuthorize() tele.MiddlewareFunc {
 
 				nc.Publish(message)
 
+				c.Bot().SetMenuButton(c.Sender(), tele.MenuButtonDefault)
+
 				return nil
 			}
 
@@ -150,6 +162,7 @@ var webApp = &tele.WebApp{
 var textUnauthorized = "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора"
 var textRegistered = "Вы авторизированы как админ! Нажмите Сканер QR для сканирования"
 var textAlreadyRegistered = "Вы уже авторизированы! Нажмите Сканер QR для сканирования"
+var textScanner = "Нажмите кнопку \"Открыть сканер QR\" для сканирования"
 
 var menuAuthorized = &tele.ReplyMarkup{
 	ResizeKeyboard: true,
@@ -161,9 +174,18 @@ var menuUnauthorized = &tele.ReplyMarkup{
 	ReplyKeyboard:  replyKeyboardUnauthorized,
 }
 
+var menuScanner = &tele.ReplyMarkup{
+	ResizeKeyboard: true,
+	InlineKeyboard: scannerInlineKeyboard,
+}
+
+var scannerInlineKeyboard = [][]tele.InlineButton{
+	{*inlineButtons["scanner"]},
+}
+
 var replyKeyboardAuthorized = [][]tele.ReplyButton{
 	{*replyButtons["help"]},
-	{*replyButtons["scanner"]},
+	{*replyButtons["get_scanner"]},
 }
 
 var replyKeyboardUnauthorized = [][]tele.ReplyButton{
@@ -171,7 +193,11 @@ var replyKeyboardUnauthorized = [][]tele.ReplyButton{
 }
 
 var replyButtons = map[string]*tele.ReplyButton{
-	"start":   {Text: "Начать"},
-	"help":    {Text: "Как это работает?"},
-	"scanner": {Text: "Сканер QR", WebApp: webApp},
+	"start":       {Text: "Начать"},
+	"help":        {Text: "Как это работает?"},
+	"get_scanner": {Text: "Получить Сканер QR"},
+}
+
+var inlineButtons = map[string]*tele.InlineButton{
+	"scanner": {Text: "Открыть сканер QR", WebApp: webApp},
 }

@@ -95,6 +95,8 @@ func createConsumeHandler(ctx context.Context, bot *tele.Bot, limiter *sendlimit
 			return
 		}
 
+		fmt.Println(string(msg.Data()))
+
 		msg.DoubleAck(ctx)
 
 		go sendableMessage.Send(bot, limiter)
