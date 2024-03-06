@@ -17,6 +17,7 @@ type User struct {
 	QrCode       string    `gorm:"column:qr_code;type:uuid;not null" json:"qr_code"`
 	ChatID       string    `gorm:"column:chat_id;type:character varying(255);not null;default:NULL" json:"chat_id"`
 	QuizCityName *string   `gorm:"column:quiz_city_name;type:character varying(255)" json:"quiz_city_name"`
+	IsFinished   bool      `gorm:"column:is_finished;type:boolean;not null" json:"is_finished"`
 }
 
 // TableName User's table name

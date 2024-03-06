@@ -73,7 +73,7 @@ func startHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
 
 	return nil
 }
@@ -94,7 +94,7 @@ func helpHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
 
 	return nil
 }
@@ -119,7 +119,7 @@ func idHandler(c tele.Context) error {
 			return err
 		}
 
-		nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
+		nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
 	}
 
 	return nil
@@ -149,7 +149,7 @@ func qrHandler(c tele.Context) error {
 		return err
 	}
 
-	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT+"."+chatID, json)
+	nc.NC.Publish(config.NATS_USER_MESSAGES_SUBJECT, json)
 
 	return nil
 }

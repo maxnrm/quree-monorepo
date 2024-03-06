@@ -132,10 +132,6 @@ func (pg *pg) GetMessagesByType(messageType enums.MessageType) []*models.Sendabl
 			photo = &tele.Photo{File: tele.FromURL(photoURL)}
 		}
 
-		if message.Caption != nil {
-			photo.Caption = *message.Caption
-		}
-
 		sendableMessages = append(sendableMessages, &models.SendableMessage{
 			Text:  message.Text,
 			Photo: photo,

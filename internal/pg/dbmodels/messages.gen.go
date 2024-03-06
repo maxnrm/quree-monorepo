@@ -18,7 +18,6 @@ type Message struct {
 	Type        string    `gorm:"column:type;type:character varying(255);not null;index:messages_type,priority:1;default:NULL" json:"type"`
 	Variant     *int32    `gorm:"column:variant;type:integer" json:"variant"`
 	Text        *string   `gorm:"column:text;type:text" json:"text"`
-	Caption     *string   `gorm:"column:caption;type:text" json:"caption"`
 }
 
 // TableName Message's table name

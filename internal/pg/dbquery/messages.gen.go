@@ -33,7 +33,6 @@ func newMessage(db *gorm.DB, opts ...gen.DOOption) message {
 	_message.Type = field.NewString(tableName, "type")
 	_message.Variant = field.NewInt32(tableName, "variant")
 	_message.Text = field.NewString(tableName, "text")
-	_message.Caption = field.NewString(tableName, "caption")
 
 	_message.fillFieldMap()
 
@@ -50,7 +49,6 @@ type message struct {
 	Type        field.String
 	Variant     field.Int32
 	Text        field.String
-	Caption     field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -73,7 +71,6 @@ func (m *message) updateTableName(table string) *message {
 	m.Type = field.NewString(table, "type")
 	m.Variant = field.NewInt32(table, "variant")
 	m.Text = field.NewString(table, "text")
-	m.Caption = field.NewString(table, "caption")
 
 	m.fillFieldMap()
 
@@ -90,14 +87,13 @@ func (m *message) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (m *message) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 7)
+	m.fieldMap = make(map[string]field.Expr, 6)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["date_created"] = m.DateCreated
 	m.fieldMap["image"] = m.Image
 	m.fieldMap["type"] = m.Type
 	m.fieldMap["variant"] = m.Variant
 	m.fieldMap["text"] = m.Text
-	m.fieldMap["caption"] = m.Caption
 }
 
 func (m message) clone(db *gorm.DB) message {

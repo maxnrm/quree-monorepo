@@ -48,7 +48,7 @@ var streamConfig = jetstream.StreamConfig{
 var userConsumerConfig = jetstream.ConsumerConfig{
 	Name:          config.NATS_USER_MESSAGES_CONSUMER,
 	Durable:       config.NATS_USER_MESSAGES_CONSUMER,
-	FilterSubject: config.NATS_USER_MESSAGES_SUBJECT + ".*",
+	FilterSubject: config.NATS_USER_MESSAGES_SUBJECT,
 	AckWait:       2 * time.Second,
 	MaxAckPending: 60,
 	MemoryStorage: true,
@@ -57,7 +57,7 @@ var userConsumerConfig = jetstream.ConsumerConfig{
 var adminConsumerConfig = jetstream.ConsumerConfig{
 	Name:          config.NATS_ADMIN_MESSAGES_CONSUMER,
 	Durable:       config.NATS_ADMIN_MESSAGES_CONSUMER,
-	FilterSubject: config.NATS_ADMIN_MESSAGES_SUBJECT + ".*",
+	FilterSubject: config.NATS_ADMIN_MESSAGES_SUBJECT,
 	AckWait:       2 * time.Second,
 	MaxAckPending: 60,
 	MemoryStorage: true,
@@ -77,8 +77,8 @@ func main() {
 
 	wg.Add(2)
 
-	go userCons.Consume(userMessageHandler)
-	go adminCons.Consume(adminMessageHandler)
+	userCons.Consume(userMessageHandler)
+	adminCons.Consume(adminMessageHandler)
 
 	fmt.Println("Consuming...")
 

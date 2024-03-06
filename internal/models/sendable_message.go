@@ -17,7 +17,6 @@ func (r *Recipient) Recipient() string {
 
 type SendableMessage struct {
 	Text        *string           `json:"text"`
-	Caption     *string           `json:"caption"`
 	Photo       *tele.Photo       `json:"photo"`
 	SendOptions *tele.SendOptions `json:"send_options"`
 	Variant     int               `json:"variant"`
@@ -55,9 +54,14 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 		return err
 	}
 
+	// var sendOptions *tele.SendOptions
+	// if sm.SendOptions != nil {
+	// 	sendOptions = &tele.SendOptions{}
+	// }
+
 	what := sm.createWhat()
 
-	_, err = bot.Send(sm.Recipient, what, sm.SendOptions)
+	_, err = bot.Send(sm.Recipient, what, &tele.SendOptions{})
 	if err != nil {
 		return err
 	}

@@ -32,6 +32,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.QrCode = field.NewString(tableName, "qr_code")
 	_user.ChatID = field.NewString(tableName, "chat_id")
 	_user.QuizCityName = field.NewString(tableName, "quiz_city_name")
+	_user.IsFinished = field.NewBool(tableName, "is_finished")
 
 	_user.fillFieldMap()
 
@@ -47,6 +48,7 @@ type user struct {
 	QrCode       field.String
 	ChatID       field.String
 	QuizCityName field.String
+	IsFinished   field.Bool
 
 	fieldMap map[string]field.Expr
 }
@@ -68,6 +70,7 @@ func (u *user) updateTableName(table string) *user {
 	u.QrCode = field.NewString(table, "qr_code")
 	u.ChatID = field.NewString(table, "chat_id")
 	u.QuizCityName = field.NewString(table, "quiz_city_name")
+	u.IsFinished = field.NewBool(table, "is_finished")
 
 	u.fillFieldMap()
 
@@ -84,12 +87,13 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 5)
+	u.fieldMap = make(map[string]field.Expr, 6)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["date_created"] = u.DateCreated
 	u.fieldMap["qr_code"] = u.QrCode
 	u.fieldMap["chat_id"] = u.ChatID
 	u.fieldMap["quiz_city_name"] = u.QuizCityName
+	u.fieldMap["is_finished"] = u.IsFinished
 }
 
 func (u user) clone(db *gorm.DB) user {
