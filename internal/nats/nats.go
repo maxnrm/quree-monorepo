@@ -64,19 +64,34 @@ func (nc *NatsClient) Publish(message *models.SendableMessage) {
 		return
 	}
 
-	json, err := json.Marshal(message)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	if message.Photo != nil {
-		log.Println("publishing photo to", *nc.PS)
-		nc.NC.Publish(*nc.PS, json)
+		toSend := &models.SendableMessage{
+			Recipient: message.Recipient,
+			Photo:     message.Photo,
+		}
+
+		toSendJson, err := json.Marshal(toSend)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		nc.NC.Publish(*nc.PS, toSendJson)
 	}
 
 	if message.Text != nil {
-		log.Println("publishing message", *message.Text, "to", *nc.PS)
-		nc.NC.Publish(*nc.PS, json)
+		toSend := &models.SendableMessage{
+			Recipient: message.Recipient,
+			Text:      message.Text,
+		}
+
+		toSendJson, err := json.Marshal(toSend)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		nc.NC.Publish(*nc.PS, toSendJson)
 	}
+
 }
