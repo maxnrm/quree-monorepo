@@ -14,6 +14,7 @@ import (
 	"quree/internal/pg/dbmodels"
 	"quree/internal/sendlimiter"
 
+	"github.com/google/uuid"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -44,7 +45,7 @@ func Init() *tele.Bot {
 
 	bot.Handle("/start", startHandler)
 	bot.Handle("/id", idHandler)
-	bot.Handle("/register", registerHandler)
+	bot.Handle(config.ADMIN_AUTH_CODE, registerHandler)
 
 	nc.UsePublishSubject(config.NATS_ADMIN_MESSAGES_SUBJECT)
 
@@ -63,7 +64,7 @@ func registerHandler(c tele.Context) error {
 
 	menuButton := &tele.MenuButton{
 		Type: tele.MenuButtonWebApp,
-		Text: "SCANNER",
+		Text: "SCAN ADM",
 		WebApp: &tele.WebApp{
 			URL: config.ADMIN_WEBAPP_URL,
 		},
@@ -84,10 +85,14 @@ func registerHandler(c tele.Context) error {
 		nc.Publish(message)
 
 		c.Bot().SetMenuButton(c.Sender(), menuButton)
+
+		return nil
 	}
 
 	err := db.CreateAdmin(&dbmodels.Admin{
-		ChatID: chatID,
+		ID:          uuid.New().String(),
+		DateCreated: time.Now(),
+		ChatID:      chatID,
 	})
 	if err != nil {
 		return err
@@ -132,6 +137,8 @@ func CheckAuthorize() tele.MiddlewareFunc {
 				}
 
 				nc.Publish(message)
+
+				return nil
 			}
 
 			l.Println("Админ", chatID, "авторизован")

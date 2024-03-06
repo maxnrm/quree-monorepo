@@ -117,7 +117,7 @@ func (pg *pg) GetFileRecordByID(id models.UUID) *models.File {
 // function to get messages by type
 func (pg *pg) GetMessagesByType(messageType enums.MessageType) []*models.SendableMessage {
 
-	var messages []dbmodels.Message
+	var messages []*dbmodels.Message
 	result := pg.Where("type = ?", messageType).Find(&messages)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil
@@ -153,7 +153,7 @@ func (pg *pg) CreateUserEventVisit(visit *dbmodels.UserEventVisit) error {
 func (pg *pg) CountUserEventVisitsForUser(userChatID string) int64 {
 
 	var count int64
-	result := pg.Model(&dbmodels.UserEventVisit{}).Where("user_id = ?", userChatID).Count(&count)
+	result := pg.Model(&dbmodels.UserEventVisit{}).Where("user_chat_id = ?", userChatID).Count(&count)
 
 	if result.Error != nil {
 		return 0
@@ -167,7 +167,7 @@ func (pg *pg) CountUserEventVisitsForUser(userChatID string) int64 {
 func (pg *pg) GetLatestUserEventVisitByUserChatID(userChatID string) (time.Time, error) {
 
 	var visit dbmodels.UserEventVisit
-	result := pg.Where("user_id = ?", userChatID).Order("date_created desc").First(&visit)
+	result := pg.Where("user_chat_id = ?", userChatID).Order("date_created desc").First(&visit)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return time.Now().Add(-10 * time.Minute), nil

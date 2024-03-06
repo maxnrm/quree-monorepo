@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var ctx = context.Background()
@@ -68,6 +69,8 @@ func CreateUserEventVisit(c *gin.Context) {
 	}
 
 	visit := dbmodels.UserEventVisit{
+		ID:          uuid.New().String(),
+		DateCreated: time.Now(),
 		UserChatID:  userChatID,
 		AdminChatID: adminChatID,
 	}
@@ -97,6 +100,9 @@ func CreateUserEventVisit(c *gin.Context) {
 	messages := db.GetMessagesByType(eventType)
 
 	message := messages[rand.Intn(len(messages))]
+	message.Recipient = &models.Recipient{
+		ChatID: userChatID,
+	}
 
 	nc.Publish(message)
 
