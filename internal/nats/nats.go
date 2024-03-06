@@ -66,8 +66,9 @@ func (nc *NatsClient) Publish(message *models.SendableMessage) {
 
 	if message.Photo != nil {
 		toSend := &models.SendableMessage{
-			Recipient: message.Recipient,
-			Photo:     message.Photo,
+			Recipient:   message.Recipient,
+			Photo:       message.Photo,
+			SendOptions: message.SendOptions,
 		}
 
 		toSendJson, err := json.Marshal(toSend)
@@ -81,8 +82,9 @@ func (nc *NatsClient) Publish(message *models.SendableMessage) {
 
 	if message.Text != nil {
 		toSend := &models.SendableMessage{
-			Recipient: message.Recipient,
-			Text:      message.Text,
+			Recipient:   message.Recipient,
+			Text:        message.Text,
+			SendOptions: message.SendOptions,
 		}
 
 		toSendJson, err := json.Marshal(toSend)

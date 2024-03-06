@@ -43,6 +43,15 @@ func (sm *SendableMessage) createWhat() interface{} {
 	return what
 }
 
+func (sm *SendableMessage) getSendOptions() *tele.SendOptions {
+	if sm.SendOptions != nil {
+		return sm.SendOptions
+	}
+
+	return &tele.SendOptions{}
+
+}
+
 func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.SendLimiter) error {
 	chatID := sm.Recipient.Recipient()
 
@@ -68,8 +77,9 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 	// }
 
 	what := sm.createWhat()
+	opts := sm.getSendOptions()
 
-	_, err = bot.Send(sm.Recipient, what, &tele.SendOptions{})
+	_, err = bot.Send(sm.Recipient, what, opts)
 	if err != nil {
 		return err
 	}
