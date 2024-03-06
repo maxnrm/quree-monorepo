@@ -43,9 +43,13 @@ func Init() *tele.Bot {
 	bot.Use(helpers.BotMiniLogger())
 	bot.Use(CheckAuthorize())
 
-	bot.Handle("/start", startHandler)
 	bot.Handle("/id", idHandler)
+	bot.Handle("/start", registerHandler)
 	bot.Handle(config.ADMIN_AUTH_CODE, registerHandler)
+
+	// handle buttons
+	bot.Handle(replyButtons["start"], registerHandler)
+	bot.Handle(replyButtons["help"], helpHandler)
 
 	nc.UsePublishSubject(config.NATS_ADMIN_MESSAGES_SUBJECT)
 
@@ -56,35 +60,28 @@ func idHandler(c tele.Context) error {
 	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
-func startHandler(c tele.Context) error {
-	return c.Send("Нажмите SCANNER для сканирования")
+func helpHandler(c tele.Context) error {
+	return c.Send("HELP_ADMIN1")
 }
 
 func registerHandler(c tele.Context) error {
 
-	menuButton := &tele.MenuButton{
-		Type: tele.MenuButtonWebApp,
-		Text: "SCAN ADM",
-		WebApp: &tele.WebApp{
-			URL: config.ADMIN_WEBAPP_URL,
-		},
-	}
-
 	chatID := fmt.Sprint(c.Chat().ID)
 	user := db.GetAdminByChatID(chatID)
 	if user != nil {
-		text := "Вы уже зарегистрированы!"
-
 		var message = &models.SendableMessage{
-			Text: &text,
+			Text: &textAlreadyRegistered,
 			Recipient: &models.Recipient{
 				ChatID: chatID,
+			},
+			SendOptions: &tele.SendOptions{
+				ReplyMarkup: menuAuthorized,
 			},
 		}
 
 		nc.Publish(message)
 
-		c.Bot().SetMenuButton(c.Sender(), menuButton)
+		c.Bot().SetMenuButton(c.Sender(), tele.MenuButtonDefault)
 
 		return nil
 	}
@@ -98,10 +95,8 @@ func registerHandler(c tele.Context) error {
 		return err
 	}
 
-	text := "Вы зарегистрированы как админ! Нажмите SCANNER для сканирования"
-
 	var message = &models.SendableMessage{
-		Text: &text,
+		Text: &textRegistered,
 		Recipient: &models.Recipient{
 			ChatID: chatID,
 		},
@@ -109,7 +104,7 @@ func registerHandler(c tele.Context) error {
 
 	nc.Publish(message)
 
-	c.Bot().SetMenuButton(c.Sender(), menuButton)
+	c.Bot().SetMenuButton(c.Sender(), tele.MenuButtonDefault)
 
 	return err
 }
@@ -127,12 +122,13 @@ func CheckAuthorize() tele.MiddlewareFunc {
 			user := db.GetAdminByChatID(chatID)
 
 			if user == nil {
-				text := "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора."
-
 				var message = &models.SendableMessage{
-					Text: &text,
+					Text: &textUnauthorized,
 					Recipient: &models.Recipient{
 						ChatID: chatID,
+					},
+					SendOptions: &tele.SendOptions{
+						ReplyMarkup: menuUnauthorized,
 					},
 				}
 
@@ -145,4 +141,37 @@ func CheckAuthorize() tele.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+var webApp = &tele.WebApp{
+	URL: config.ADMIN_WEBAPP_URL,
+}
+
+var textUnauthorized = "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора"
+var textRegistered = "Вы авторизированы как админ! Нажмите Сканер QR для сканирования"
+var textAlreadyRegistered = "Вы уже авторизированы! Нажмите Сканер QR для сканирования"
+
+var menuAuthorized = &tele.ReplyMarkup{
+	ResizeKeyboard: true,
+	ReplyKeyboard:  replyKeyboardAuthorized,
+}
+
+var menuUnauthorized = &tele.ReplyMarkup{
+	ResizeKeyboard: true,
+	ReplyKeyboard:  replyKeyboardUnauthorized,
+}
+
+var replyKeyboardAuthorized = [][]tele.ReplyButton{
+	{*replyButtons["help"]},
+	{*replyButtons["scanner"]},
+}
+
+var replyKeyboardUnauthorized = [][]tele.ReplyButton{
+	{*replyButtons["start"]},
+}
+
+var replyButtons = map[string]*tele.ReplyButton{
+	"start":   {Text: "Начать"},
+	"help":    {Text: "Как это работает?"},
+	"scanner": {Text: "Сканер QR", WebApp: webApp},
 }
