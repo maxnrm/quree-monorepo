@@ -2,8 +2,10 @@ package nats
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
+	"quree/internal/models"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -55,10 +57,26 @@ func (nc *NatsClient) UsePublishSubject(subject string) {
 	nc.PS = &subject
 }
 
-func (nc *NatsClient) Publish(msg []byte) error {
+func (nc *NatsClient) Publish(message *models.SendableMessage) {
 	if nc.PS == nil {
-		return nc.NC.Publish("subject", msg)
+		err := errors.New("no subject was set for publishing")
+		log.Fatal(err)
+		return
 	}
 
-	return errors.New("no subject was set for publishing")
+	json, err := json.Marshal(message)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if message.Photo != nil {
+		log.Println("publishing photo to", *nc.PS)
+		nc.NC.Publish(*nc.PS, json)
+	}
+
+	if message.Text != nil {
+		log.Println("publishing message", *message.Text, "to", *nc.PS)
+		nc.NC.Publish(*nc.PS, json)
+	}
 }

@@ -2,7 +2,6 @@ package adminbot
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"quree/config"
@@ -75,19 +74,14 @@ func registerHandler(c tele.Context) error {
 	if user != nil {
 		text := "Вы уже зарегистрированы!"
 
-		var message = models.SendableMessage{
+		var message = &models.SendableMessage{
 			Text: &text,
 			Recipient: &models.Recipient{
 				ChatID: chatID,
 			},
 		}
 
-		json, err := json.Marshal(message)
-		if err != nil {
-			return err
-		}
-
-		nc.Publish(json)
+		nc.Publish(message)
 
 		c.Bot().SetMenuButton(c.Sender(), menuButton)
 	}
@@ -101,19 +95,14 @@ func registerHandler(c tele.Context) error {
 
 	text := "Вы зарегистрированы как админ! Нажмите SCANNER для сканирования"
 
-	var message = models.SendableMessage{
+	var message = &models.SendableMessage{
 		Text: &text,
 		Recipient: &models.Recipient{
 			ChatID: chatID,
 		},
 	}
 
-	json, err := json.Marshal(message)
-	if err != nil {
-		return err
-	}
-
-	nc.Publish(json)
+	nc.Publish(message)
 
 	c.Bot().SetMenuButton(c.Sender(), menuButton)
 
@@ -135,19 +124,14 @@ func CheckAuthorize() tele.MiddlewareFunc {
 			if user == nil {
 				text := "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора."
 
-				var message = models.SendableMessage{
+				var message = &models.SendableMessage{
 					Text: &text,
 					Recipient: &models.Recipient{
 						ChatID: chatID,
 					},
 				}
 
-				json, err := json.Marshal(message)
-				if err != nil {
-					return err
-				}
-
-				nc.Publish(json)
+				nc.Publish(message)
 			}
 
 			l.Println("Админ", chatID, "авторизован")
