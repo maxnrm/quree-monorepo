@@ -30,7 +30,6 @@ func newUserEventVisit(db *gorm.DB, opts ...gen.DOOption) userEventVisit {
 	_userEventVisit.ID = field.NewString(tableName, "id")
 	_userEventVisit.DateCreated = field.NewTime(tableName, "date_created")
 	_userEventVisit.UserChatID = field.NewString(tableName, "user_chat_id")
-	_userEventVisit.AdminChatID = field.NewString(tableName, "admin_chat_id")
 
 	_userEventVisit.fillFieldMap()
 
@@ -44,7 +43,6 @@ type userEventVisit struct {
 	ID          field.String
 	DateCreated field.Time
 	UserChatID  field.String
-	AdminChatID field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -64,7 +62,6 @@ func (u *userEventVisit) updateTableName(table string) *userEventVisit {
 	u.ID = field.NewString(table, "id")
 	u.DateCreated = field.NewTime(table, "date_created")
 	u.UserChatID = field.NewString(table, "user_chat_id")
-	u.AdminChatID = field.NewString(table, "admin_chat_id")
 
 	u.fillFieldMap()
 
@@ -81,11 +78,10 @@ func (u *userEventVisit) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (u *userEventVisit) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 4)
+	u.fieldMap = make(map[string]field.Expr, 3)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["date_created"] = u.DateCreated
 	u.fieldMap["user_chat_id"] = u.UserChatID
-	u.fieldMap["admin_chat_id"] = u.AdminChatID
 }
 
 func (u userEventVisit) clone(db *gorm.DB) userEventVisit {

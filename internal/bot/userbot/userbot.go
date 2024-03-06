@@ -217,3 +217,50 @@ func CheckAuthorize() tele.MiddlewareFunc {
 		}
 	}
 }
+
+// var webApp = &tele.WebApp{
+// 	URL: config.ADMIN_WEBAPP_URL,
+// }
+
+// var textUnauthorized = "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора"
+// var textRegistered = "Вы авторизированы как админ! Нажмите Сканер QR для сканирования"
+// var textAlreadyRegistered = "Вы уже авторизированы! Нажмите Сканер QR для сканирования"
+// var textScanner = "Нажмите кнопку \"Открыть сканер QR\" для сканирования"
+
+// var menuAuthorized = &tele.ReplyMarkup{
+// 	ResizeKeyboard: true,
+// 	ReplyKeyboard:  replyKeyboardAuthorized,
+// }
+
+// var menuUnauthorized = &tele.ReplyMarkup{
+// 	ResizeKeyboard: true,
+// 	ReplyKeyboard:  replyKeyboardUnauthorized,
+// }
+
+// var menuScanner = &tele.ReplyMarkup{
+// 	ResizeKeyboard: true,
+// 	InlineKeyboard: scannerInlineKeyboard,
+// }
+
+// var scannerInlineKeyboard = [][]tele.InlineButton{
+// 	{*inlineButtons["scanner"]},
+// }
+
+// var replyKeyboardAuthorized = [][]tele.ReplyButton{
+// 	{*replyButtons["help"]},
+// 	{*replyButtons["get_scanner"]},
+// }
+
+// var replyKeyboardUnauthorized = [][]tele.ReplyButton{
+// 	{*replyButtons["start"]},
+// }
+
+// var replyButtons = map[string]*tele.ReplyButton{
+// 	"start":       {Text: "Начать"},
+// 	"help":        {Text: "Как это работает?"},
+// 	"get_scanner": {Text: "Получить Сканер QR"},
+// }
+
+// var inlineButtons = map[string]*tele.InlineButton{
+// 	"scanner": {Text: "Открыть сканер QR", WebApp: webApp},
+// }

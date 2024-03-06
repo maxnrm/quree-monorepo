@@ -15,7 +15,6 @@ type UserEventVisit struct {
 	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
 	UserChatID  string    `gorm:"column:user_chat_id;type:character varying(255);not null;default:NULL" json:"user_chat_id"`
-	AdminChatID string    `gorm:"column:admin_chat_id;type:character varying(255);not null;default:NULL" json:"admin_chat_id"`
 }
 
 // TableName UserEventVisit's table name

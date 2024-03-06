@@ -15,7 +15,7 @@ type Message struct {
 	ID          string    `gorm:"column:id;type:uuid;primaryKey" json:"id"`
 	DateCreated time.Time `gorm:"column:date_created;type:timestamp with time zone;not null" json:"date_created"`
 	Image       *string   `gorm:"column:image;type:uuid" json:"image"`
-	Type        string    `gorm:"column:type;type:character varying(255);not null;index:messages_type,priority:1;default:NULL" json:"type"`
+	Type        *string   `gorm:"column:type;type:character varying(255);index:messages_type,priority:1;default:NULL" json:"type"`
 	Variant     *int32    `gorm:"column:variant;type:integer" json:"variant"`
 	Text        *string   `gorm:"column:text;type:text" json:"text"`
 }
