@@ -117,7 +117,7 @@ func qrHandler(c tele.Context) error {
 
 	photoURL := config.IMGPROXY_PUBLIC_URL + "/" + user.QrCode + ".png"
 
-	qr := &tele.Photo{
+	qr := &models.Photo{
 		File:    tele.FromURL(photoURL),
 		Caption: "Твой QR-код",
 	}

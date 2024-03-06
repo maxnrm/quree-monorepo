@@ -88,6 +88,7 @@ func main() {
 func createConsumeHandler(ctx context.Context, bot *tele.Bot, limiter *sendlimiter.SendLimiter) jetstream.MessageHandler {
 	return func(msg jetstream.Msg) {
 		var sendableMessage models.SendableMessage
+
 		err := json.Unmarshal(msg.Data(), &sendableMessage)
 		if err != nil {
 			fmt.Println("Error while unmarshalling sendableMessage from json:", err)

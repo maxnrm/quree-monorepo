@@ -126,10 +126,10 @@ func (pg *pg) GetMessagesByType(messageType enums.MessageType) []*models.Sendabl
 	var sendableMessages []*models.SendableMessage
 
 	for _, message := range messages {
-		photo := &tele.Photo{}
+		photo := &models.Photo{}
 		if message.Image != nil {
 			photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *message.Image + ".jpg"
-			photo = &tele.Photo{File: tele.FromURL(photoURL)}
+			photo = &models.Photo{File: tele.FromURL(photoURL)}
 		}
 
 		sendableMessages = append(sendableMessages, &models.SendableMessage{

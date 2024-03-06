@@ -17,10 +17,18 @@ func (r *Recipient) Recipient() string {
 
 type SendableMessage struct {
 	Text        *string           `json:"text,omitempty"`
-	Photo       *tele.Photo       `json:"photo,omitempty"`
+	Photo       *Photo            `json:"photo,omitempty"`
 	SendOptions *tele.SendOptions `json:"send_options,omitempty"`
 	Variant     int               `json:"variant"`
 	Recipient   *Recipient        `json:"recipient"`
+}
+
+type Photo struct {
+	tele.File
+
+	Width   int    `json:"width"`
+	Height  int    `json:"height"`
+	Caption string `json:"caption,omitempty"`
 }
 
 func (sm *SendableMessage) createWhat() interface{} {
@@ -29,7 +37,7 @@ func (sm *SendableMessage) createWhat() interface{} {
 	if sm.Text != nil {
 		what = *sm.Text
 	} else {
-		what = sm.Photo
+		what = &tele.Photo{File: tele.FromURL(sm.Photo.FileURL), Caption: sm.Photo.Caption}
 	}
 
 	return what
