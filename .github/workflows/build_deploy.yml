@@ -30,7 +30,7 @@ jobs:
           image: quree-tg-miniapp
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
           tag: ${{ env.RELEASE_VERSION }}
-          tag_with_latest: true
+          tag_with_latest: false
           build_file: ./build/tg-miniapp/Dockerfile
 
       - name: Kaniko build tg-update
@@ -42,7 +42,7 @@ jobs:
           image: quree-tg-update
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
           tag: ${{ env.RELEASE_VERSION }}
-          tag_with_latest: true
+          tag_with_latest: false
           build_file: ./build/tg-update/Dockerfile
 
       - name: Kaniko build tg-pusher
@@ -54,7 +54,7 @@ jobs:
           image: quree-tg-pusher
           extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
           tag: ${{ env.RELEASE_VERSION }}
-          tag_with_latest: true
+          tag_with_latest: false
           build_file: ./build/tg-pusher/Dockerfile
 
       # - name: Kaniko build tg-placeholder
@@ -66,7 +66,7 @@ jobs:
       #     image: quree-tg-placeholder
       #     extra_args: "--snapshot-mode=time --use-new-run --single-snapshot"
       #     tag: ${{ env.RELEASE_VERSION }}
-      #     tag_with_latest: true
+      #     tag_with_latest: false
       #     build_file: ./build/tg-placeholder/Dockerfile
   deploy:
     needs: [build]
