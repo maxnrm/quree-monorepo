@@ -7,7 +7,6 @@ import (
 	"quree/config"
 	"quree/internal/models"
 	"quree/internal/nats"
-	"quree/internal/pg"
 	"quree/internal/sendlimiter"
 	"sync"
 	"time"
@@ -17,9 +16,7 @@ import (
 )
 
 var wg sync.WaitGroup
-var db = pg.DB
 var ctx = context.Background()
-
 var userSl = sendlimiter.Init(ctx)
 var adminSl = sendlimiter.Init(ctx)
 
