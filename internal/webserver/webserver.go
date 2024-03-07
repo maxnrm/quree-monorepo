@@ -46,7 +46,7 @@ func Healthcheck(c *gin.Context) {
 
 func CreateUserEventVisit(c *gin.Context) {
 
-	// json consists of two significant fields - user_chat_id and admin_chat_id
+	// json consist of one significant field user_chat_id
 
 	var qrCodeMessage models.QRCodeMessage
 
@@ -58,13 +58,22 @@ func CreateUserEventVisit(c *gin.Context) {
 	}
 
 	userChatID := qrCodeMessage.UserChatID
-	adminChatID := qrCodeMessage.AdminChatID
 
 	fmt.Println(qrCodeMessage)
 
 	latestEventVisit, _ := db.GetLatestUserEventVisitByUserChatID(userChatID)
 	if time.Since(latestEventVisit).Minutes() < float64(config.EVENT_VISIT_DELAY_MINUTES) {
-		c.JSON(201, gin.H{"status": "scanned recently"})
+		// text := "Кажется, вас недавно сканировали! Попробуйте сходить на другое мероприятие"
+		// message := &models.SendableMessage{
+		// 	Text: &text,
+		// 	Recipient: &models.Recipient{
+		// 		ChatID: userChatID,
+		// 	},
+		// }
+
+		// nc.Publish(message)
+
+		c.JSON(304, gin.H{"status": "scanned recently"})
 		return
 	}
 
@@ -72,7 +81,6 @@ func CreateUserEventVisit(c *gin.Context) {
 		ID:          uuid.New().String(),
 		DateCreated: time.Now(),
 		UserChatID:  userChatID,
-		AdminChatID: adminChatID,
 	}
 
 	db.CreateUserEventVisit(&visit)

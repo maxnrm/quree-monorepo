@@ -49,37 +49,64 @@ func Init() *tele.Bot {
 
 	// handle buttons
 	bot.Handle(replyButtons["start"], registerHandler)
-	bot.Handle(replyButtons["help"], helpHandler)
-	bot.Handle(replyButtons["get_scanner"], scannerHandler)
+	bot.Handle(replyButtons["help"], helpHandlerFactory(nil))
+	bot.Handle(inlineButtons["help1"], helpHandlerFactory(inlineButtons["help1"]))
+	bot.Handle(inlineButtons["help2"], helpHandlerFactory(inlineButtons["help2"]))
+	bot.Handle(inlineButtons["help3"], helpHandlerFactory(inlineButtons["help3"]))
 
 	nc.UsePublishSubject(config.NATS_ADMIN_MESSAGES_SUBJECT)
 
 	return bot
 }
 
-func scannerHandler(c tele.Context) error {
-	chatID := fmt.Sprint(c.Chat().ID)
-	var message = &models.SendableMessage{
-		Text: &textScanner,
-		Recipient: &models.Recipient{
-			ChatID: chatID,
-		},
-		SendOptions: &tele.SendOptions{
-			ReplyMarkup: menuScanner,
-		},
-	}
-
-	nc.Publish(message)
-
-	return nil
-}
-
 func idHandler(c tele.Context) error {
 	return c.Send(fmt.Sprintf("%d", c.Chat().ID))
 }
 
-func helpHandler(c tele.Context) error {
-	return c.Send("HELP_ADMIN1")
+func helpHandlerFactory(btn *tele.InlineButton) tele.HandlerFunc {
+	return func(c tele.Context) error {
+		var chatID = fmt.Sprint(c.Chat().ID)
+
+		var text string
+		var inlineKeyboard [][]tele.InlineButton
+		var data string
+		if btn != nil {
+			data = btn.Data
+		} else {
+			data = ""
+		}
+
+		switch data {
+		case "help1":
+			text = textHelp1
+			inlineKeyboard = [][]tele.InlineButton{{*inlineButtons["help2"]}}
+		case "help2":
+			text = textHelp2
+			inlineKeyboard = [][]tele.InlineButton{{*inlineButtons["help3"]}}
+		case "help3":
+			text = textHelp3
+		default:
+			text = textHelp
+			inlineKeyboard = [][]tele.InlineButton{{*inlineButtons["help1"]}}
+		}
+
+		var message = &models.SendableMessage{
+			Text: &text,
+			Recipient: &models.Recipient{
+				ChatID: chatID,
+			},
+			SendOptions: &tele.SendOptions{
+				ParseMode: tele.ModeMarkdown,
+				ReplyMarkup: &tele.ReplyMarkup{
+					InlineKeyboard: inlineKeyboard,
+				},
+			},
+		}
+
+		nc.Publish(message)
+
+		return nil
+	}
 }
 
 func registerHandler(c tele.Context) error {
@@ -162,7 +189,10 @@ var webApp = &tele.WebApp{
 var textUnauthorized = "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора"
 var textRegistered = "Вы авторизированы как админ! Нажмите Сканер QR для сканирования"
 var textAlreadyRegistered = "Вы уже авторизированы! Нажмите Сканер QR для сканирования"
-var textScanner = "Нажмите кнопку \"Открыть сканер QR\" для сканирования"
+var textHelp = "Нажмите кнопку **Сканер QR**, откроется камера, попросите участника показать **QR-код участника**, отсканируйте QR-код, участнику должно прийти сообщение"
+var textHelp1 = "На викторине участники сканируют **QR-код викторины** сами, помогите им найти **QR-код викторины**"
+var textHelp2 = "На финальном мероприятии просканируйте **QR-код участника**, если ему пришла **проходка**, то он прошел все этапы, если нет, то нет"
+var textHelp3 = "Отлично, если что всегда можно перечитать еще раз! Удачи!"
 
 var menuAuthorized = &tele.ReplyMarkup{
 	ResizeKeyboard: true,
@@ -174,18 +204,9 @@ var menuUnauthorized = &tele.ReplyMarkup{
 	ReplyKeyboard:  replyKeyboardUnauthorized,
 }
 
-var menuScanner = &tele.ReplyMarkup{
-	ResizeKeyboard: true,
-	InlineKeyboard: scannerInlineKeyboard,
-}
-
-var scannerInlineKeyboard = [][]tele.InlineButton{
-	{*inlineButtons["scanner"]},
-}
-
 var replyKeyboardAuthorized = [][]tele.ReplyButton{
 	{*replyButtons["help"]},
-	{*replyButtons["get_scanner"]},
+	{*replyButtons["scanner"]},
 }
 
 var replyKeyboardUnauthorized = [][]tele.ReplyButton{
@@ -193,11 +214,13 @@ var replyKeyboardUnauthorized = [][]tele.ReplyButton{
 }
 
 var replyButtons = map[string]*tele.ReplyButton{
-	"start":       {Text: "Начать"},
-	"help":        {Text: "Как это работает?"},
-	"get_scanner": {Text: "Получить Сканер QR"},
+	"start":   {Text: "Начать"},
+	"help":    {Text: "Как это работает?"},
+	"scanner": {Text: "Сканер QR", WebApp: webApp},
 }
 
 var inlineButtons = map[string]*tele.InlineButton{
-	"scanner": {Text: "Открыть сканер QR", WebApp: webApp},
+	"help1": {Text: "А как с викториной?", Unique: "inlinehelp1", Data: "help1"},
+	"help2": {Text: "А секретное мероприятие?", Unique: "inlinehelp2", Data: "help2"},
+	"help3": {Text: "Вроде все понял :)", Unique: "inlinehelp3", Data: "help3"},
 }
