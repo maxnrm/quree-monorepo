@@ -73,7 +73,6 @@ func addUserCity(c *gin.Context) {
 	nc.Publish(message)
 
 	c.JSON(200, gin.H{"status": "Вы успешно прошли викторину!"})
-
 }
 
 func createUserEventVisit(c *gin.Context) {

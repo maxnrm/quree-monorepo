@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"quree/internal/sendlimiter"
 	"time"
 
@@ -45,11 +46,11 @@ func (sm *SendableMessage) createWhat() interface{} {
 
 func (sm *SendableMessage) getSendOptions() *tele.SendOptions {
 	if sm.SendOptions != nil {
-		sm.SendOptions.ParseMode = tele.ModeMarkdownV2
+		// sm.SendOptions.ParseMode = tele.ModeMarkdown
 		return sm.SendOptions
 	}
 
-	return &tele.SendOptions{ParseMode: tele.ModeMarkdownV2}
+	return &tele.SendOptions{}
 
 }
 
@@ -74,6 +75,8 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 
 	what := sm.createWhat()
 	opts := sm.getSendOptions()
+
+	fmt.Println(sm.Text)
 
 	_, err = bot.Send(sm.Recipient, what, opts)
 	if err != nil {
