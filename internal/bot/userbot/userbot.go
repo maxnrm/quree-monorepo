@@ -47,11 +47,13 @@ func Init() *tele.Bot {
 	bot.Use(helpers.BotMiniLogger())
 	bot.Use(CheckAuthorize())
 
-	bot.Handle("/start", startHandler)
-	bot.Handle("/help", helpHandler)
 	bot.Handle("/id", idHandler)
-	bot.Handle("/qr", qrHandler)
-	bot.Handle("/register", registerHandler)
+	bot.Handle("/start", startHandler)
+
+	bot.Handle(replyButtons["help"], helpHandler)
+	bot.Handle(replyButtons["qr"], qrHandler)
+	bot.Handle(replyButtons["start"], registerHandler)
+	bot.Handle(replyButtons["get_scanner"], getScannerHandler)
 
 	nc.UsePublishSubject(config.NATS_USER_MESSAGES_SUBJECT)
 
@@ -68,6 +70,10 @@ func startHandler(c tele.Context) error {
 		ChatID: chatID,
 	}
 
+	message.SendOptions = &tele.SendOptions{
+		ReplyMarkup: menuAuthorized,
+	}
+
 	nc.Publish(message)
 
 	return nil
@@ -77,10 +83,28 @@ func helpHandler(c tele.Context) error {
 
 	chatID := fmt.Sprint(c.Chat().ID)
 
-	messages := db.GetMessagesByType(enums.START)
+	messages := db.GetMessagesByType(enums.HELP)
 	message := messages[0]
 	message.Recipient = &models.Recipient{
 		ChatID: chatID,
+	}
+
+	nc.Publish(message)
+
+	return nil
+}
+
+func getScannerHandler(c tele.Context) error {
+	chatID := fmt.Sprint(c.Chat().ID)
+
+	var message = &models.SendableMessage{
+		Text: &textScanner,
+		Recipient: &models.Recipient{
+			ChatID: chatID,
+		},
+		SendOptions: &tele.SendOptions{
+			ReplyMarkup: menuScanner,
+		},
 	}
 
 	nc.Publish(message)
@@ -194,14 +218,14 @@ func registerHandler(c tele.Context) error {
 		fmt.Println("error creating user:", err)
 	}
 
-	return helpHandler(c)
+	return startHandler(c)
 }
 
 func CheckAuthorize() tele.MiddlewareFunc {
 	l := log.Default()
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(c tele.Context) error {
-			if c.Message().Text == "/register" {
+			if c.Message().Text == "Запуск" {
 				return next(c)
 			}
 
@@ -209,7 +233,21 @@ func CheckAuthorize() tele.MiddlewareFunc {
 			user := db.GetUserByChatID(chatID)
 
 			if user == nil {
-				return startHandler(c)
+				var message = &models.SendableMessage{
+					Text: &textUnauthorized,
+					Recipient: &models.Recipient{
+						ChatID: chatID,
+					},
+					SendOptions: &tele.SendOptions{
+						ReplyMarkup: menuUnauthorized,
+					},
+				}
+
+				nc.Publish(message)
+
+				c.Bot().SetMenuButton(c.Sender(), tele.MenuButtonDefault)
+
+				return nil
 			}
 
 			l.Println("Юзер", chatID, "авторизован")
@@ -218,49 +256,49 @@ func CheckAuthorize() tele.MiddlewareFunc {
 	}
 }
 
-// var webApp = &tele.WebApp{
-// 	URL: config.ADMIN_WEBAPP_URL,
-// }
+var webApp = &tele.WebApp{
+	URL: config.USER_WEBAPP_URL,
+}
 
-// var textUnauthorized = "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора"
-// var textRegistered = "Вы авторизированы как админ! Нажмите Сканер QR для сканирования"
-// var textAlreadyRegistered = "Вы уже авторизированы! Нажмите Сканер QR для сканирования"
-// var textScanner = "Нажмите кнопку \"Открыть сканер QR\" для сканирования"
+var textUnauthorized = "`Инициализация...\nТребуется ввод пользователя...`"
+var textScanner = "Нажимай Открыть Сканер QR и сканируй QR-код викторины!"
 
-// var menuAuthorized = &tele.ReplyMarkup{
-// 	ResizeKeyboard: true,
-// 	ReplyKeyboard:  replyKeyboardAuthorized,
-// }
+var menuAuthorized = &tele.ReplyMarkup{
+	ResizeKeyboard: true,
+	ReplyKeyboard:  replyKeyboardAuthorized,
+}
 
-// var menuUnauthorized = &tele.ReplyMarkup{
-// 	ResizeKeyboard: true,
-// 	ReplyKeyboard:  replyKeyboardUnauthorized,
-// }
+var menuUnauthorized = &tele.ReplyMarkup{
+	ResizeKeyboard: true,
+	ReplyKeyboard:  replyKeyboardUnauthorized,
+}
 
-// var menuScanner = &tele.ReplyMarkup{
-// 	ResizeKeyboard: true,
-// 	InlineKeyboard: scannerInlineKeyboard,
-// }
+var menuScanner = &tele.ReplyMarkup{
+	ResizeKeyboard: true,
+	InlineKeyboard: scannerInlineKeyboard,
+}
 
-// var scannerInlineKeyboard = [][]tele.InlineButton{
-// 	{*inlineButtons["scanner"]},
-// }
+var scannerInlineKeyboard = [][]tele.InlineButton{
+	{*inlineButtons["scanner"]},
+}
 
-// var replyKeyboardAuthorized = [][]tele.ReplyButton{
-// 	{*replyButtons["help"]},
-// 	{*replyButtons["get_scanner"]},
-// }
+var replyKeyboardAuthorized = [][]tele.ReplyButton{
+	{*replyButtons["help"]},
+	{*replyButtons["qr"]},
+	{*replyButtons["get_scanner"]},
+}
 
-// var replyKeyboardUnauthorized = [][]tele.ReplyButton{
-// 	{*replyButtons["start"]},
-// }
+var replyKeyboardUnauthorized = [][]tele.ReplyButton{
+	{*replyButtons["start"]},
+}
 
-// var replyButtons = map[string]*tele.ReplyButton{
-// 	"start":       {Text: "Начать"},
-// 	"help":        {Text: "Как это работает?"},
-// 	"get_scanner": {Text: "Получить Сканер QR"},
-// }
+var replyButtons = map[string]*tele.ReplyButton{
+	"start":       {Text: "Запуск"},
+	"help":        {Text: "Как это работает?"},
+	"qr":          {Text: "Показать QR-код"},
+	"get_scanner": {Text: "Получить Сканер QR"},
+}
 
-// var inlineButtons = map[string]*tele.InlineButton{
-// 	"scanner": {Text: "Открыть сканер QR", WebApp: webApp},
-// }
+var inlineButtons = map[string]*tele.InlineButton{
+	"scanner": {Text: "Открыть Сканер QR", WebApp: webApp},
+}

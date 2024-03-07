@@ -45,10 +45,11 @@ func (sm *SendableMessage) createWhat() interface{} {
 
 func (sm *SendableMessage) getSendOptions() *tele.SendOptions {
 	if sm.SendOptions != nil {
+		sm.SendOptions.ParseMode = tele.ModeMarkdownV2
 		return sm.SendOptions
 	}
 
-	return &tele.SendOptions{}
+	return &tele.SendOptions{ParseMode: tele.ModeMarkdownV2}
 
 }
 
