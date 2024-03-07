@@ -22,7 +22,7 @@ jobs:
           type-token: iam
 
       - name: Kaniko build tg-miniapp
-        uses: aevea/action-kaniko@v0.10.0
+        uses: aevea/action-kaniko@v0.11.0
         with:
           registry: ${{ vars.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_USER }}
@@ -34,7 +34,7 @@ jobs:
           build_file: ./build/tg-miniapp/Dockerfile
 
       - name: Kaniko build tg-update
-        uses: aevea/action-kaniko@v0.10.0
+        uses: aevea/action-kaniko@v0.11.0
         with:
           registry: ${{ vars.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_USER }}
@@ -46,7 +46,7 @@ jobs:
           build_file: ./build/tg-update/Dockerfile
 
       - name: Kaniko build tg-pusher
-        uses: aevea/action-kaniko@v0.10.0
+        uses: aevea/action-kaniko@v0.11.0
         with:
           registry: ${{ vars.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_REGISTRY_USER }}
@@ -58,7 +58,7 @@ jobs:
           build_file: ./build/tg-pusher/Dockerfile
 
       # - name: Kaniko build tg-placeholder
-      #   uses: aevea/action-kaniko@v0.10.0
+      #   uses: aevea/action-kaniko@v0.11.0
       #   with:
       #     registry: ${{ vars.DOCKER_REGISTRY }}
       #     username: ${{ secrets.DOCKER_REGISTRY_USER }}
