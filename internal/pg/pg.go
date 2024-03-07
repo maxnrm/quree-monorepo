@@ -53,6 +53,27 @@ func (pg *pg) CreateUser(user *dbmodels.User) error {
 	return result.Error
 }
 
+// method, that adds city to user
+
+func (pg *pg) UpdateUserQuizCity(userCityMessage *models.UserCityMessage) error {
+
+	// get user by chatID
+	user := pg.GetUserByChatID(userCityMessage.ChatID)
+	if user == nil {
+		return errors.New("user not found updateQuizCity")
+	}
+
+	// update user city
+	user.QuizCityName = &userCityMessage.City
+	user.IsFinished = true
+	now := time.Now()
+	user.DateQuizFinished = &now
+
+	result := pg.Save(user)
+
+	return result.Error
+}
+
 func (pg *pg) GetAdminByChatID(chatID string) *dbmodels.Admin {
 	var admin *dbmodels.Admin
 	// get user by chatID and Role

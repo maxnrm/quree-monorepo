@@ -33,3 +33,9 @@ type QRCodeMessage struct {
 	AdminChatID string `json:"admin_chat_id"`
 	QRCodeID    UUID   `json:"qr_code_id"`
 }
+
+type UserCityMessage struct {
+	ChatID string `json:"chat_id"`
+	Pass   string `json:"pass"`
+	City   string `json:"city"`
+}

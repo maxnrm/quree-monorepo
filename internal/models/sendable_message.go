@@ -72,11 +72,6 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 		return err
 	}
 
-	// var sendOptions *tele.SendOptions
-	// if sm.SendOptions != nil {
-	// 	sendOptions = &tele.SendOptions{}
-	// }
-
 	what := sm.createWhat()
 	opts := sm.getSendOptions()
 

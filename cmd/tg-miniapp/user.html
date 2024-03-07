@@ -11,8 +11,22 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 50vh;
         }
+
+        #status {
+            display: flex;
+
+            justify-content: center;
+
+            border: 2px solid red;
+            margin: auto;
+
+            width: 50%;
+            height: 10%;
+            padding: 2px;
+        }
+
         #open-scan {
             display: flex;
 
@@ -20,6 +34,7 @@
             
             border: 2px solid;
             margin: auto;
+
             width: 50%;
             padding: 5px;
         }
@@ -28,13 +43,14 @@
 
 <body>
     <div id="container">
+        <div id="status"></div>
         <button id="open-scan">Открыть сканер USER</button>
-        <div id="content"></div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
         let btn = document.getElementById("open-scan");
+        let divStatus = document.getElementById("status");
 
         btn.onclick = function () {
             tg.showScanQrPopup({ text: "Сканирование..." }, function () {
@@ -44,19 +60,20 @@
 
         tg.onEvent("qrTextReceived", async function({ data }) {
             let sendObject = {}
+
             sendObject.pass = data.split(",")[0]
             sendObject.city = data.split(",")[1]
+            sendObject.chat_id = String(tg.initDataUnsafe.user.id)
 
             if (sendObject.pass != "loc") {
                 tg.closeScanQrPopup()
+                divStatus.style.color = "red"
+                divStatus.innerHTML = "Кажется, неверный QR-код"
                 return
             }
 
-            let div = document.createElement("div");
-            div.innerHTML = JSON.stringify(sendObject);
-            document.getElementById("content").appendChild(div) 
 
-
+            divStatus.innerHTML = JSON.stringify(sendObject)
             result = await fetch("/api/user/add_city", {
                 method: "POST",
                 body: JSON.stringify(sendObject)
@@ -64,14 +81,13 @@
 
             if (result.ok) {
                 tg.closeScanQrPopup()
+                divStatus.style.color = "green"
+                divStatus.style.border = "2px solid green"
+                divStatus.innerHTML = "Сканирование успешно!"
+                sleep(3000)
+                tg.close()
             }
         })
-
-        tg.onEvent("popupClosed", function() {
-            tg.close()
-        })
-
-        // tg.ready();
 
     </script>
 </body>
