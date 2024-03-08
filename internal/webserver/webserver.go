@@ -127,7 +127,10 @@ func createUserEventVisit(c *gin.Context) {
 		return
 	}
 
+	timeDBMessageStart := time.Now()
 	messages := db.GetMessagesByType(eventType)
+	timeDBMessage := time.Since(timeDBMessageStart)
+	fmt.Println("Get message(s) in:", timeDBMessage.Milliseconds(), "ms")
 
 	message := messages[rand.Intn(len(messages))]
 	message.Recipient = &models.Recipient{
