@@ -100,8 +100,24 @@ func helpHandler(c tele.Context) error {
 
 func getScannerHandler(c tele.Context) error {
 	chatID := fmt.Sprint(c.Chat().ID)
+	numberOfEvents := db.CountUserEventVisitsForUser(chatID)
 
-	var message = &models.SendableMessage{
+	var message *models.SendableMessage
+
+	if numberOfEvents < 4 {
+		message = &models.SendableMessage{
+			Text: &textNoScanner,
+			Recipient: &models.Recipient{
+				ChatID: chatID,
+			},
+		}
+
+		nc.Publish(message)
+
+		return nil
+	}
+
+	message = &models.SendableMessage{
 		Text: &textScanner,
 		Recipient: &models.Recipient{
 			ChatID: chatID,
@@ -264,8 +280,9 @@ var webApp = &tele.WebApp{
 	URL: config.USER_WEBAPP_URL,
 }
 
-var textUnauthorized = "`Инициализация...\nТребуется ввод пользователя...`"
+var textUnauthorized = "Инициализация...\nТребуется ввод пользователя..."
 var textScanner = "Нажимай Открыть Сканер QR и сканируй QR-код викторины!"
+var textNoScanner = "Error...\nДля открытия сканера нужно посетить минимум 4 события."
 
 var menuAuthorized = &tele.ReplyMarkup{
 	ResizeKeyboard: true,
