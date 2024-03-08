@@ -3,7 +3,6 @@ package sendlimiter
 import (
 	"context"
 	"fmt"
-	"quree/config"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -21,9 +20,9 @@ type SendLimiter struct {
 	UserRateLimitersCache map[string]*UserRateLimiter
 }
 
-func Init(ctx context.Context) *SendLimiter {
-	limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_GLOBAL))
-	rateLimiter := rate.NewLimiter(limit, config.RATE_LIMIT_BURST_GLOBAL)
+func Init(ctx context.Context, gl int, gb int) *SendLimiter {
+	limit := rate.Every(time.Second / time.Duration(gl))
+	rateLimiter := rate.NewLimiter(limit, gb)
 
 	return &SendLimiter{
 		Ctx:                   ctx,
@@ -33,9 +32,9 @@ func Init(ctx context.Context) *SendLimiter {
 
 }
 
-func (sl *SendLimiter) AddUserRateLimiter(chatID string) {
-	limit := rate.Every(time.Second / time.Duration(config.RATE_LIMIT_USER))
-	rateLimiter := rate.NewLimiter(limit, config.RATE_LIMIT_BURST_USER)
+func (sl *SendLimiter) AddUserRateLimiter(chatID string, l int, b int) {
+	limit := rate.Every(time.Second / time.Duration(l))
+	rateLimiter := rate.NewLimiter(limit, b)
 
 	sl.UserRateLimitersCache[chatID] = &UserRateLimiter{
 		ChatID:      chatID,
@@ -56,11 +55,11 @@ func (sl *SendLimiter) removeUserRateLimiter(chatID string) {
 	delete(sl.UserRateLimitersCache, chatID)
 }
 
-func (sl *SendLimiter) RemoveOldUserRateLimitersCache() {
+func (sl *SendLimiter) RemoveOldUserRateLimitersCache(delay time.Duration) {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(delay * time.Second)
 		for k, v := range sl.UserRateLimitersCache {
-			if time.Since(v.LastMsgSent) > 10*time.Second {
+			if time.Since(v.LastMsgSent) > delay*time.Second {
 				fmt.Println(v.LastMsgSent, "removing...")
 				fmt.Println(time.Now())
 				sl.removeUserRateLimiter(k)

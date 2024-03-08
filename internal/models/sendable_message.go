@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"quree/config"
 	"quree/internal/sendlimiter"
 	"time"
 
@@ -58,7 +59,7 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 
 	userRateLimiter := limiter.GetUserRateLimiter(chatID)
 	if userRateLimiter == nil {
-		limiter.AddUserRateLimiter(chatID)
+		limiter.AddUserRateLimiter(chatID, config.RATE_LIMIT_USER, config.RATE_LIMIT_BURST_USER)
 		userRateLimiter = limiter.GetUserRateLimiter(chatID)
 	}
 

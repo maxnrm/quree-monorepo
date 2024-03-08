@@ -23,7 +23,7 @@ import (
 )
 
 var ctx = context.Background()
-var SendLimiter = sendlimiter.Init(ctx)
+var sl = sendlimiter.Init(ctx, config.RATE_LIMIT_GLOBAL, config.RATE_LIMIT_BURST_GLOBAL)
 var db = pg.DB
 var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
 	Ctx: ctx,
@@ -44,6 +44,7 @@ func Init() *tele.Bot {
 		log.Fatal(err)
 	}
 
+	bot.Use(RateLimit())
 	bot.Use(helpers.BotMiniLogger())
 	bot.Use(CheckAuthorize())
 
@@ -56,6 +57,8 @@ func Init() *tele.Bot {
 	bot.Handle(replyButtons["get_scanner"], getScannerHandler)
 
 	nc.UsePublishSubject(config.NATS_USER_MESSAGES_SUBJECT)
+
+	go sl.RemoveOldUserRateLimitersCache(60)
 
 	return bot
 }
@@ -252,6 +255,27 @@ func CheckAuthorize() tele.MiddlewareFunc {
 			}
 
 			l.Println("Юзер", chatID, "авторизован")
+			return next(c)
+		}
+	}
+}
+
+func RateLimit() tele.MiddlewareFunc {
+	l := log.Default()
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(c tele.Context) error {
+			chatID := fmt.Sprint(c.Chat().ID)
+			userRateLimiter := sl.GetUserRateLimiter(chatID)
+			if userRateLimiter == nil {
+				sl.AddUserRateLimiter(chatID, 2, 2)
+				userRateLimiter = sl.GetUserRateLimiter(chatID)
+			}
+
+			if !userRateLimiter.RateLimiter.Allow() {
+				l.Println("Rate limit exceeded for", chatID, "returning...")
+				return nil
+			}
+
 			return next(c)
 		}
 	}

@@ -12,7 +12,7 @@ import (
 )
 
 var ctx = context.Background()
-var limiter = sendlimiter.Init(ctx)
+var limiter = sendlimiter.Init(ctx, config.RATE_LIMIT_GLOBAL, config.RATE_LIMIT_BURST_GLOBAL)
 
 func main() {
 	b, err := tele.NewBot(tele.Settings{

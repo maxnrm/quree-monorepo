@@ -19,7 +19,7 @@ import (
 )
 
 var ctx = context.Background()
-var SendLimiter = sendlimiter.Init(ctx)
+var SendLimiter = sendlimiter.Init(ctx, config.RATE_LIMIT_GLOBAL, config.RATE_LIMIT_BURST_GLOBAL)
 var db = pg.DB
 var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
 	Ctx: ctx,

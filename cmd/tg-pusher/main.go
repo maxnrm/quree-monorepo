@@ -17,8 +17,8 @@ import (
 
 var wg sync.WaitGroup
 var ctx = context.Background()
-var userSl = sendlimiter.Init(ctx)
-var adminSl = sendlimiter.Init(ctx)
+var userSl = sendlimiter.Init(ctx, config.RATE_LIMIT_GLOBAL, config.RATE_LIMIT_BURST_GLOBAL)
+var adminSl = sendlimiter.Init(ctx, config.RATE_LIMIT_GLOBAL, config.RATE_LIMIT_BURST_GLOBAL)
 
 var nc *nats.NatsClient = nats.Init(nats.NatsSettings{
 	Ctx: ctx,
@@ -61,9 +61,6 @@ var adminConsumerConfig = jetstream.ConsumerConfig{
 }
 
 func main() {
-	go userSl.RemoveOldUserRateLimitersCache()
-	go adminSl.RemoveOldUserRateLimitersCache()
-
 	nc.CreateStream(streamConfig)
 
 	userCons := nc.CreateConsumer(streamConfig.Name, userConsumerConfig)
@@ -72,7 +69,17 @@ func main() {
 	adminCons := nc.CreateConsumer(streamConfig.Name, adminConsumerConfig)
 	adminMessageHandler := createConsumeHandler(ctx, adminBotSender, adminSl)
 
-	wg.Add(2)
+	// go func() {
+	// 	for {
+	// 		time.Sleep(1 * time.Second)
+	// 		fmt.Println("Num goroutine:", runtime.NumGoroutine())
+	// 	}
+	// }()
+
+	wg.Add(4)
+
+	go userSl.RemoveOldUserRateLimitersCache(60)
+	go adminSl.RemoveOldUserRateLimitersCache(60)
 
 	userCons.Consume(userMessageHandler)
 	adminCons.Consume(adminMessageHandler)
