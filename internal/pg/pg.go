@@ -10,7 +10,6 @@ import (
 	"quree/internal/models/enums"
 
 	"quree/internal/pg/dbmodels"
-	"quree/internal/pg/dbquery"
 
 	tele "gopkg.in/telebot.v3"
 	"gorm.io/driver/postgres"
@@ -19,7 +18,6 @@ import (
 
 type pg struct {
 	*gorm.DB
-	q *dbquery.Query
 }
 
 var DB = Init(config.POSTGRES_CONN_STRING)
@@ -33,7 +31,6 @@ func Init(connString string) *pg {
 
 	var pg *pg = &pg{
 		DB: db,
-		q:  dbquery.Use(db),
 	}
 
 	return pg
