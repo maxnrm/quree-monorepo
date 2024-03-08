@@ -102,6 +102,7 @@ func helpHandlerFactory(btn *tele.InlineButton) tele.HandlerFunc {
 			},
 		}
 
+		c.Respond()
 		nc.Publish(message)
 
 		return nil
