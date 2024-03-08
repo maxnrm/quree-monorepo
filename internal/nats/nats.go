@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"quree/internal/models"
 
@@ -76,6 +77,8 @@ func (nc *NatsClient) Publish(message *models.SendableMessage) {
 			log.Println(err)
 			return
 		}
+
+		fmt.Println(message.Photo)
 
 		nc.NC.Publish(*nc.PS, toSendJson)
 	}

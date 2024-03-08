@@ -46,7 +46,6 @@ func (sm *SendableMessage) createWhat() interface{} {
 
 func (sm *SendableMessage) getSendOptions() *tele.SendOptions {
 	if sm.SendOptions != nil {
-		// sm.SendOptions.ParseMode = tele.ModeMarkdown
 		return sm.SendOptions
 	}
 
@@ -76,10 +75,9 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 	what := sm.createWhat()
 	opts := sm.getSendOptions()
 
-	fmt.Println(sm.Text)
-
 	_, err = bot.Send(sm.Recipient, what, opts)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

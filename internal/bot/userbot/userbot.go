@@ -84,6 +84,7 @@ func helpHandler(c tele.Context) error {
 	chatID := fmt.Sprint(c.Chat().ID)
 
 	messages := db.GetMessagesByType(enums.HELP)
+
 	message := messages[0]
 	message.Recipient = &models.Recipient{
 		ChatID: chatID,

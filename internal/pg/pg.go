@@ -144,7 +144,7 @@ func (pg *pg) GetMessagesByType(messageType enums.MessageType) []*models.Sendabl
 	var sendableMessages []*models.SendableMessage
 
 	for _, message := range messages {
-		photo := &models.Photo{}
+		var photo *models.Photo = nil
 		if message.Image != nil {
 			photoURL := config.IMGPROXY_PUBLIC_URL + "/" + *message.Image + ".jpg"
 			photo = &models.Photo{File: tele.FromURL(photoURL)}
