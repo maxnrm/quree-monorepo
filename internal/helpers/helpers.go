@@ -6,6 +6,7 @@ import (
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/sendlimiter"
+	"time"
 
 	tele "gopkg.in/telebot.v3"
 )
@@ -100,4 +101,10 @@ func RateLimit(sl *sendlimiter.SendLimiter) tele.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func DateEqual(date1, date2 time.Time) bool {
+	y1, m1, d1 := date1.Date()
+	y2, m2, d2 := date2.Date()
+	return y1 == y2 && m1 == m2 && d1 == d2
 }

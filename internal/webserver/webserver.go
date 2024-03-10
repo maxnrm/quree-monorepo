@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/rand"
 	"quree/config"
+	"quree/internal/helpers"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/nats"
@@ -88,6 +89,28 @@ func createUserEventVisit(c *gin.Context) {
 		return
 	}
 
+	var today = time.Now()
+	var goalDate = time.Date(2023, 3, 15, 0, 0, 0, 0, time.UTC)
+	if helpers.DateEqual(today, goalDate) {
+		user := db.GetUserByChatID(qrCodeMessage.UserChatID)
+		numberOfEvents := db.CountUserEventVisitsForUser(qrCodeMessage.UserChatID)
+
+		if numberOfEvents > 4 && user.QuizCityName != nil {
+			messages := db.GetMessagesByType(enums.FINAL_PASS)
+			message := messages[0]
+			message.Recipient = &models.Recipient{
+				ChatID: qrCodeMessage.UserChatID,
+			}
+
+			nc.Publish(message)
+
+			c.JSON(200, gin.H{"status": "accepted"})
+
+			return
+		}
+
+	}
+
 	userChatID := qrCodeMessage.UserChatID
 
 	fmt.Println(qrCodeMessage)
@@ -139,5 +162,5 @@ func createUserEventVisit(c *gin.Context) {
 
 	nc.Publish(message)
 
-	c.JSON(200, gin.H{"status": "created"})
+	c.JSON(201, gin.H{"status": "created"})
 }
