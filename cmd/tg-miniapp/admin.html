@@ -5,46 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan QR</title>
-    <style>
-        #open-scan {
-            display: flex;
-
-            justify-content: center;
-            align-items: center;
-            
-            border: 2px solid;
-            margin: auto;
-            width: 50%;
-            padding: 5px;
-        }
-    </style>
 </head>
 
 <body>
-    <div id="container">
-        <button id="open-scan">Открыть сканер ADMIN</button>
-        <div id="content"></div>
-    </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
-        let btn = document.getElementById("open-scan");
+        let lastScannedChatID = 0
 
-        btn.onclick = function () {
-            tg.showScanQrPopup({ text: "SCAN..." }, function () {
-                return false
-            });
-        }
+        tg.showScanQrPopup({ text: "Сканирование..." }, function () {
+            return false
+        });
 
         tg.onEvent("qrTextReceived", async function({ data }) {
+
             let sendObject = {}
             sendObject.user_chat_id = data.split(",")[0]
             sendObject.qr_code_id = data.split(",")[1]
 
-            let div = document.createElement("div");
-            div.innerHTML = JSON.stringify(sendObject);
-            document.getElementById("content").appendChild(div) 
-
+            if  (lastScannedChatID == sendObject.user_chat_id) {
+                return
+            }
 
             result = await fetch("/api/user_event_visit/create", {
                 method: "POST",
@@ -52,18 +33,15 @@
             })
 
             if (result.ok) {
-                tg.closeScanQrPopup()
+                lastScannedChatID = sendObject.user_chat_id
             }
         })
 
-        tg.onEvent("popupClosed", function() {
+        tg.onEvent("scan_qr_popup_closed", async function() {
             tg.close()
         })
 
-        // tg.expand();
         tg.ready();
-
-
     </script>
 </body>
 

@@ -5,62 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan QR</title>
-    <style>
-        #container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 50vh;
-        }
-
-        #status {
-            display: flex;
-
-            justify-content: center;
-
-            border: 2px solid red;
-            margin: auto;
-
-            width: 50%;
-            height: 10%;
-            padding: 2px;
-        }
-
-        #open-scan {
-            display: flex;
-
-            justify-content: center;
-            
-            border: 2px solid;
-            margin: auto;
-
-            width: 50%;
-            padding: 5px;
-        }
-    </style>
 </head>
 
 <body>
-    <div id="container">
-        <div id="status"></div>
-        <button id="open-scan">Открыть сканер USER</button>
-    </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
-        let btn = document.getElementById("open-scan");
-        let divStatus = document.getElementById("status");
 
         tg.showScanQrPopup({ text: "Сканирование..." }, function () {
-            return true
+            return false
         });
-
-        btn.onclick = function () {
-            tg.showScanQrPopup({ text: "Сканирование..." }, function () {
-                return true
-            });
-        }
 
         tg.onEvent("qrTextReceived", async function({ data }) {
             let sendObject = {}
@@ -70,25 +24,20 @@
             sendObject.chat_id = String(tg.initDataUnsafe.user.id)
 
             if (sendObject.pass != "loc") {
-                divStatus.style.color = "red"
-                divStatus.innerHTML = "Кажется, неверный QR-код"
                 return
             }
 
 
-            divStatus.innerHTML = JSON.stringify(sendObject)
             result = await fetch("/api/user/add_city", {
                 method: "POST",
                 body: JSON.stringify(sendObject)
             })
 
-            if (result.ok) {
-                divStatus.style.color = "green"
-                divStatus.style.border = "2px solid green"
-                divStatus.innerHTML = "Сканирование успешно!"
-                tg.close()
-            }
+            tg.close()
+            tg.closeScanQrPopup()
         })
+
+        tg.ready()
 
     </script>
 </body>
