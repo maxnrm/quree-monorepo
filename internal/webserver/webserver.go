@@ -90,7 +90,13 @@ func createUserEventVisit(c *gin.Context) {
 	}
 
 	var today = time.Now()
-	var goalDate = time.Date(2023, 3, 15, 0, 0, 0, 0, time.UTC)
+	goalDate, err := time.Parse("2006-01-02", config.FINISH_PASS_DATE)
+	if err != nil {
+		fmt.Println("error parsing date")
+		c.JSON(500, gin.H{"error": "internal server error"})
+		return
+	}
+
 	if helpers.DateEqual(today, goalDate) {
 		user := db.GetUserByChatID(qrCodeMessage.UserChatID)
 		numberOfEvents := db.CountUserEventVisitsForUser(qrCodeMessage.UserChatID)
