@@ -15,6 +15,7 @@ import (
 	"quree/internal/pg/dbmodels"
 	"quree/internal/s3"
 	"quree/internal/sendlimiter"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -55,6 +56,7 @@ func Init() *tele.Bot {
 	bot.Handle(replyButtons["qr"], qrHandler)
 	bot.Handle(replyButtons["start"], registerHandler)
 	bot.Handle(replyButtons["get_scanner"], getScannerHandler)
+	bot.Handle(replyButtons["show_status"], statusHandler)
 
 	nc.UsePublishSubject(config.NATS_USER_MESSAGES_SUBJECT)
 
@@ -80,6 +82,53 @@ func startHandler(c tele.Context) error {
 	nc.Publish(message)
 
 	return nil
+}
+
+func statusHandler(c tele.Context) error {
+	chatID := fmt.Sprint(c.Chat().ID)
+
+	var eventsMessage string
+	var quizMessage string
+	var passMessage string
+	var fullMessageSlice []string
+
+	user := db.GetUserByChatID(chatID)
+	numberOfEvents := db.CountUserEventVisitsForUser(chatID)
+
+	eventsMessage = fmt.Sprintf("Посещенных событий: %d", numberOfEvents)
+	fullMessageSlice = append(fullMessageSlice, eventsMessage)
+
+	if user.QuizCityName != nil {
+		quizMessage = "Викторина завершена"
+	} else {
+		quizMessage = "Викторина не завершена"
+	}
+
+	fullMessageSlice = append(fullMessageSlice, quizMessage)
+
+	if numberOfEvents >= 4 && user.QuizCityName != nil {
+		passMessage = "Пропуск на финальное событие: Получен\nПокажите свой QR-код на входе, чтобы пройти на финальное событие"
+	} else {
+		passMessage = "Пропуск на финальное событие: Не получен\nДля допуска на финальное событие нужно посетить 4 события и поучаствовать в викторинe"
+	}
+
+	fullMessageSlice = append(fullMessageSlice, passMessage)
+
+	text := strings.Join(fullMessageSlice, "\n\n")
+
+	// messageType := helpers.GetMessageTypeByCount(numberOfEvents)
+
+	message := &models.SendableMessage{
+		Text: &text,
+		Recipient: &models.Recipient{
+			ChatID: chatID,
+		},
+	}
+
+	nc.Publish(message)
+
+	return nil
+
 }
 
 func helpHandler(c tele.Context) error {
@@ -307,6 +356,7 @@ var replyKeyboardAuthorized = [][]tele.ReplyButton{
 	{*replyButtons["help"]},
 	{*replyButtons["qr"]},
 	{*replyButtons["get_scanner"]},
+	{*replyButtons["show_status"]},
 }
 
 var replyKeyboardUnauthorized = [][]tele.ReplyButton{
@@ -318,6 +368,7 @@ var replyButtons = map[string]*tele.ReplyButton{
 	"help":        {Text: "Как это работает?"},
 	"qr":          {Text: "Показать QR-код"},
 	"get_scanner": {Text: "Получить Сканер QR"},
+	"show_status": {Text: "Показать статус"},
 }
 
 var inlineButtons = map[string]*tele.InlineButton{
