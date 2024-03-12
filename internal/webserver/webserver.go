@@ -89,7 +89,6 @@ func createUserEventVisit(c *gin.Context) {
 		return
 	}
 
-	var today = time.Now()
 	goalDate, err := time.Parse("2006-01-02", config.FINISH_PASS_DATE)
 	if err != nil {
 		fmt.Println("error parsing date")
@@ -97,7 +96,10 @@ func createUserEventVisit(c *gin.Context) {
 		return
 	}
 
-	if helpers.DateEqual(today, goalDate) {
+	fmt.Println("Now", time.Now())
+	fmt.Println("Goal", goalDate)
+
+	if helpers.IsNowAfter(goalDate) {
 		user := db.GetUserByChatID(qrCodeMessage.UserChatID)
 		numberOfEvents := db.CountUserEventVisitsForUser(qrCodeMessage.UserChatID)
 
@@ -112,6 +114,21 @@ func createUserEventVisit(c *gin.Context) {
 
 			c.JSON(200, gin.H{"status": "accepted"})
 
+			return
+		} else {
+
+			var text = "К сожалению, условия для прохода не выполнены.\n\nПроверьте свой статус по кнопке \"Показать статус\"."
+
+			var message = &models.SendableMessage{
+				Text: &text,
+				Recipient: &models.Recipient{
+					ChatID: qrCodeMessage.UserChatID,
+				},
+			}
+
+			nc.Publish(message)
+
+			c.JSON(200, gin.H{"status": "forbidden"})
 			return
 		}
 

@@ -78,8 +78,8 @@ func main() {
 
 	wg.Add(4)
 
-	go userSl.RemoveOldUserRateLimitersCache(60)
-	go adminSl.RemoveOldUserRateLimitersCache(60)
+	go userSl.RemoveOldUserRateLimitersCache(20)
+	go adminSl.RemoveOldUserRateLimitersCache(20)
 
 	userCons.Consume(userMessageHandler)
 	adminCons.Consume(adminMessageHandler)

@@ -99,17 +99,17 @@ func statusHandler(c tele.Context) error {
 	fullMessageSlice = append(fullMessageSlice, eventsMessage)
 
 	if user.QuizCityName != nil {
-		quizMessage = "Викторина завершена"
+		quizMessage = "Викторина: завершена"
 	} else {
-		quizMessage = "Викторина не завершена"
+		quizMessage = "Викторина: не завершена"
 	}
 
 	fullMessageSlice = append(fullMessageSlice, quizMessage)
 
 	if numberOfEvents >= 4 && user.QuizCityName != nil {
-		passMessage = "Пропуск на финальное событие: Получен\nПокажите свой QR-код на входе, чтобы пройти на финальное событие"
+		passMessage = "Пропуск на финальное событие: Получен\n\nПокажите свой QR-код на входе, чтобы пройти на финальное событие"
 	} else {
-		passMessage = "Пропуск на финальное событие: Не получен\nДля допуска на финальное событие нужно посетить 4 события и поучаствовать в викторинe"
+		passMessage = "Пропуск на финальное событие: Не получен\n\nДля допуска на финальное событие нужно посетить 4 события и поучаствовать в викторинe"
 	}
 
 	fullMessageSlice = append(fullMessageSlice, passMessage)
@@ -329,9 +329,9 @@ var webApp = &tele.WebApp{
 	URL: config.USER_WEBAPP_URL,
 }
 
-var textUnauthorized = "Инициализация...\nТребуется ввод пользователя..."
+var textUnauthorized = "Инициализация...\n\nТребуется ввод пользователя..."
 var textScanner = "Нажимай Открыть Сканер QR и сканируй QR-код викторины!"
-var textNoScanner = "Error...\nДля открытия сканера нужно посетить минимум 4 события."
+var textNoScanner = "Err...Error...\n\nДля открытия сканера нужно посетить минимум 4 события."
 
 var menuAuthorized = &tele.ReplyMarkup{
 	ResizeKeyboard: true,

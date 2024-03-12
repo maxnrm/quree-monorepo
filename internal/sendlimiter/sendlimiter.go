@@ -3,6 +3,7 @@ package sendlimiter
 import (
 	"context"
 	"fmt"
+	"runtime"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -65,7 +66,7 @@ func (sl *SendLimiter) RemoveOldUserRateLimitersCache(delay time.Duration) {
 				sl.removeUserRateLimiter(k)
 			}
 		}
-		// fmt.Println("Clearing cache, items:", sl.UserRateLimitersCache)
-		// fmt.Println("Num goroutine:", runtime.NumGoroutine())
+		fmt.Println("Clearing cache, items:", len(sl.UserRateLimitersCache))
+		fmt.Println("Num goroutine:", runtime.NumGoroutine())
 	}
 }

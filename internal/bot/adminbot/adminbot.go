@@ -68,7 +68,8 @@ func helpHandlerFactory(btn *tele.InlineButton) tele.HandlerFunc {
 	return func(c tele.Context) error {
 		var chatID = fmt.Sprint(c.Chat().ID)
 
-		var text string
+		var text *string
+		var photo *models.Photo
 		var inlineKeyboard [][]tele.InlineButton
 		var data string
 		if btn != nil {
@@ -79,23 +80,26 @@ func helpHandlerFactory(btn *tele.InlineButton) tele.HandlerFunc {
 
 		switch data {
 		case "help1":
-			text = textHelp1
+			text = &textHelp1
 			inlineKeyboard = [][]tele.InlineButton{{*inlineButtons["help2"]}}
 		case "help2":
-			text = textHelp2
+			text = nil
+			photo = &models.Photo{File: tele.FromURL(passExampleURL), Caption: textHelp2}
 			inlineKeyboard = [][]tele.InlineButton{{*inlineButtons["help3"]}}
 		case "help3":
-			text = textHelp3
+			text = &textHelp3
 		default:
-			text = textHelp
+			text = nil
+			photo = &models.Photo{File: tele.FromURL(scannerAdminExampleURL), Caption: textHelp}
 			inlineKeyboard = [][]tele.InlineButton{{*inlineButtons["help1"]}}
 		}
 
 		var message = &models.SendableMessage{
-			Text: &text,
+			Text: text,
 			Recipient: &models.Recipient{
 				ChatID: chatID,
 			},
+			Photo: photo,
 			SendOptions: &tele.SendOptions{
 				ReplyMarkup: &tele.ReplyMarkup{
 					InlineKeyboard: inlineKeyboard,
@@ -190,10 +194,14 @@ var webApp = &tele.WebApp{
 var textUnauthorized = "Вы не авторизованы! Для доступа к приложению введите код, полученный у куратора"
 var textRegistered = "Вы авторизированы как админ! Нажмите Сканер QR для сканирования"
 var textAlreadyRegistered = "Вы уже авторизированы! Нажмите Сканер QR для сканирования"
-var textHelp = "Нажмите кнопку Сканер QR, откроется камера, попросите участника показать QR-код участника, отсканируйте QR-код, участнику должно прийти сообщение"
-var textHelp1 = "На викторине участники сканируют QR-код викторины сами, помогите им найти QR-код викторины"
-var textHelp2 = "На финальном мероприятии просканируйте QR-код участника, если ему пришла *проходка*, то он прошел все этапы, если нет, то нет"
-var textHelp3 = "Отлично, если что, всегда можно перечитать еще раз! Удачи!"
+
+var scannerAdminExampleURL = "https://quree.maxnrm.monster/images/3835e4b8-d27e-4639-b493-868d93238ae7.png"
+var textHelp = "Нажмите кнопку в боте \"Сканер QR\", откроется камера, попросите участника показать QR-код участника (у участника он открывается в его боте, по кнопке \"Показать QR-код\"), отсканируйте QR-код, участнику должно прийти сообщение.\n\nВнимание! Сканировать нужно только сканером по кнопке \"Сканер QR\" в боте! Обычная камера телефона не подойдет."
+var textHelp1 = "На викторине участники сканируют QR-код викторины сами, из своего бота, просто помогите им найти QR-код викторины."
+
+var passExampleURL = "https://quree.maxnrm.monster/images/7c813d8f-ed42-4921-a931-c715252e9ab2.png"
+var textHelp2 = "На финальном мероприятии просканируйте QR-код участника, если ему пришла проходка, то он прошел все этапы, если нет, то нет."
+var textHelp3 = "Отлично, если что, всегда можно перечитать еще раз!\n\nВ самом крайнем случае, если совершенно ничего непонятно или бот не работает, пишите сюда @gakhh в таком формате:\n- название города / поселения\n- точное описание проблемы\n\nУдачи!"
 
 var menuAuthorized = &tele.ReplyMarkup{
 	ResizeKeyboard: true,
@@ -222,6 +230,6 @@ var replyButtons = map[string]*tele.ReplyButton{
 
 var inlineButtons = map[string]*tele.InlineButton{
 	"help1": {Text: "А как с викториной?", Unique: "inlinehelp1", Data: "help1"},
-	"help2": {Text: "А секретное мероприятие?", Unique: "inlinehelp2", Data: "help2"},
+	"help2": {Text: "А финальное мероприятие?", Unique: "inlinehelp2", Data: "help2"},
 	"help3": {Text: "Вроде все понял :)", Unique: "inlinehelp3", Data: "help3"},
 }
