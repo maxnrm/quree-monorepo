@@ -188,7 +188,7 @@ func (pg *pg) GetLatestUserEventVisitByUserChatID(userChatID string) (time.Time,
 	result := pg.Where("user_chat_id = ?", userChatID).Order("date_created desc").First(&visit)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		return time.Now().Add(-10 * time.Minute), nil
+		return time.Now().Add(-100 * time.Minute), nil
 	}
 
 	return visit.DateCreated, nil
