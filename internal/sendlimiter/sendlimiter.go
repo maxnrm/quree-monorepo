@@ -61,8 +61,6 @@ func (sl *SendLimiter) RemoveOldUserRateLimitersCache(delay time.Duration) {
 		time.Sleep(delay * time.Second)
 		for k, v := range sl.UserRateLimitersCache {
 			if time.Since(v.LastMsgSent) > delay*time.Second {
-				fmt.Println(v.LastMsgSent, "removing...")
-				fmt.Println(time.Now())
 				sl.removeUserRateLimiter(k)
 			}
 		}
