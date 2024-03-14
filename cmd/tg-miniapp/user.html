@@ -55,6 +55,14 @@
             return false
         });
 
+        btnOpen.addEventListener('click', function() {
+            window.location.reload()
+        });
+
+        btnClose.addEventListener('click', function() {
+            tg.close()
+        });
+
         tg.onEvent("qrTextReceived", async function({ data }) {
             let sendObject = {}
 
