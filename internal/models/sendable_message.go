@@ -73,6 +73,8 @@ func (sm *SendableMessage) sendWithLimit(bot *tele.Bot, limiter *sendlimiter.Sen
 		return err
 	}
 
+	fmt.Println("Tokens left: ", limiter.GlobalRateLimiter.Tokens())
+
 	what := sm.createWhat()
 	opts := sm.getSendOptions()
 
