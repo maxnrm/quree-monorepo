@@ -5,12 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan QR</title>
+    <style>
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .btns {
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            width: 80%;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="container">
+        <div id="camera_permission" class="btns"></div>
+        <button id="open_scanner" class="btns"><span>Рестарт</span></button>
+        <button id="close_scanner" class="btns"><span>Закрыть</span></button>
+    </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
+        let theme = tg.themeParams
+
+        divPerm = document.getElementById('camera_permission')
+        divPerm.innerHTML = "Если сканер не открывается, необходимо разрешить Телеграму использовать камеру"
+        btnOpen = document.getElementById('open_scanner')
+        btnClose = document.getElementById('close_scanner')
+        btns = document.getElementsByClassName('btns')
+
+        divPerm.style.color = theme.text_color
+        btnOpen.style.backgroundColor = theme.button_color
+        btnOpen.style.color = theme.button_text_color
+        btnClose.style.backgroundColor = theme.destructive_text_color
+        btnClose.style.color = theme.button_text_color
 
         tg.showScanQrPopup({ text: "Сканирование..." }, function () {
             return false
