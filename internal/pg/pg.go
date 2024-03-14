@@ -180,6 +180,92 @@ func (pg *pg) CountUserEventVisitsForUser(userChatID string) int64 {
 	return count
 }
 
+func (pg *pg) CountUsers() int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.User{}).Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
+func (pg *pg) CountUsersWithQuiz() int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.User{}).Where("is_finished = ?", true).Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
+// function to get users with more than four visits from db
+// should use sql statement, cause visists and users are in different tables
+// SELECT
+//     users.chat_id,
+//     COUNT(user_event_visits.id) AS VisitsCount
+// FROM
+//     users
+// LEFT JOIN
+//     User_Event_Visits ON users.chat_id = user_event_visits.user_chat_id
+// GROUP BY
+//     users.chat_id
+// ORDER BY
+//     VisitsCount DESC;
+
+func (pg *pg) CountUsersWithMoreThanFourVisits() int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.User{}).Select("users.chat_id, COUNT(user_event_visits.id) AS VisitsCount").Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").Group("users.chat_id").Having("COUNT(user_event_visits.id) > 4").Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
+func (pg *pg) CountUsersWithMoreThanFourVisitsAndQuiz() int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.User{}).Select("users.chat_id, COUNT(user_event_visits.id) AS VisitsCount").Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").Group("users.chat_id").Having("COUNT(user_event_visits.id) > 4").Where("is_finished = ?", true).Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
+func (pg *pg) CountAdmins() int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.Admin{}).Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
+func (pg *pg) CountVisits() int64 {
+
+	var count int64
+	result := pg.Model(&dbmodels.UserEventVisit{}).Count(&count)
+
+	if result.Error != nil {
+		return 0
+	}
+
+	return count
+}
+
 // method to get latest UserEventVisit for user, counting only events with type EVENT
 
 func (pg *pg) GetLatestUserEventVisitByUserChatID(userChatID string) (time.Time, error) {
