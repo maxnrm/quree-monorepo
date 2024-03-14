@@ -27,6 +27,7 @@ func main() {
 	b.Use(MiniLogger())
 	b.Handle("/start", startHandler)
 	b.Handle("/stats", statsHandler)
+	b.Handle("/stats_by_city", statsByCity)
 
 	fmt.Println("Bot token:", b.Token)
 	b.Start()
@@ -84,6 +85,29 @@ func statsHandler(c tele.Context) error {
 		},
 		SendOptions: &tele.SendOptions{
 			ParseMode: tele.ModeMarkdownV2,
+		},
+	}
+
+	return message.Send(c.Bot(), limiter)
+}
+
+func statsByCity(c tele.Context) error {
+	var text = "Юзеров, с доступом к финальному событию, по городам:\n\n"
+
+	statsByCity, err := db.CountUsersWithMoreThanFourVisitsAndQuizByCity()
+	if err != nil {
+		c.Send("Error")
+		return err
+	}
+
+	for _, city := range statsByCity {
+		text += fmt.Sprintf("%s: %d\n", city.QuizCityName, city.UserCount)
+	}
+
+	message := &models.SendableMessage{
+		Text: &text,
+		Recipient: &models.Recipient{
+			ChatID: fmt.Sprint(c.Chat().ID),
 		},
 	}
 

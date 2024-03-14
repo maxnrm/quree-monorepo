@@ -221,7 +221,7 @@ func (pg *pg) CountUsersWithQuiz() int64 {
 func (pg *pg) CountUsersWithMoreThanFourVisits() int64 {
 
 	var count int64
-	result := pg.Model(&dbmodels.User{}).Select("users.chat_id, COUNT(user_event_visits.id) AS VisitsCount").Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").Group("users.chat_id").Having("COUNT(user_event_visits.id) > 4").Count(&count)
+	result := pg.Model(&dbmodels.User{}).Select("users.chat_id, COUNT(user_event_visits.id) AS VisitsCount").Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").Group("users.chat_id").Having("COUNT(user_event_visits.id) >= 4").Count(&count)
 
 	if result.Error != nil {
 		return 0
@@ -233,13 +233,37 @@ func (pg *pg) CountUsersWithMoreThanFourVisits() int64 {
 func (pg *pg) CountUsersWithMoreThanFourVisitsAndQuiz() int64 {
 
 	var count int64
-	result := pg.Model(&dbmodels.User{}).Select("users.chat_id, COUNT(user_event_visits.id) AS VisitsCount").Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").Group("users.chat_id").Having("COUNT(user_event_visits.id) > 4").Where("is_finished = ?", true).Count(&count)
+	result := pg.Model(&dbmodels.User{}).Select("users.chat_id, COUNT(user_event_visits.id) AS VisitsCount").Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").Group("users.chat_id").Having("COUNT(user_event_visits.id) >= 4").Where("is_finished = ?", true).Count(&count)
 
 	if result.Error != nil {
 		return 0
 	}
 
 	return count
+}
+
+type QuizCityNameUsersCount struct {
+	QuizCityName string
+	UserCount    int64
+}
+
+func (pg *pg) CountUsersWithMoreThanFourVisitsAndQuizByCity() ([]QuizCityNameUsersCount, error) {
+	var results []QuizCityNameUsersCount
+
+	result := pg.Model(&dbmodels.User{}).
+		Select("users.quiz_city_name, COUNT(DISTINCT users.chat_id) AS user_count").
+		Joins("LEFT JOIN user_event_visits ON users.chat_id = user_event_visits.user_chat_id").
+		Group("users.quiz_city_name").
+		Having("COUNT(user_event_visits.id) >= 4").
+		Where("is_finished = ?", true).
+		Order("user_count DESC").
+		Scan(&results)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return results, nil
 }
 
 func (pg *pg) CountAdmins() int64 {
