@@ -92,7 +92,7 @@ func checkPass(c *gin.Context) {
 	user := db.GetUserByChatID(qrCodeMessage.UserChatID)
 	numberOfEvents := db.CountUserEventVisitsForUser(qrCodeMessage.UserChatID)
 
-	if numberOfEvents > 4 && user.QuizCityName != nil {
+	if numberOfEvents >= 4 && user.QuizCityName != nil {
 		messages := db.GetMessagesByType(enums.FINAL_PASS)
 		message := messages[0]
 		message.Recipient = &models.Recipient{
