@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math/rand"
 	"quree/config"
-	"quree/internal/helpers"
 	"quree/internal/models"
 	"quree/internal/models/enums"
 	"quree/internal/nats"
@@ -33,6 +32,7 @@ func Start() {
 	router := gin.Default()
 
 	router.POST("/api/user_event_visit/create", createUserEventVisit)
+	router.POST("/api/user/check_pass", checkPass)
 	router.POST("/api/user/add_city", addUserCity)
 	router.GET("/healthcheck", healthcheck)
 
@@ -76,6 +76,53 @@ func addUserCity(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "Вы успешно прошли викторину!"})
 }
 
+func checkPass(c *gin.Context) {
+
+	var qrCodeMessage models.QRCodeMessage
+
+	err := c.BindJSON(&qrCodeMessage)
+	if err != nil {
+		fmt.Println("error binding json")
+		c.JSON(400, gin.H{"error": "bad request"})
+		return
+	}
+
+	fmt.Println(qrCodeMessage)
+
+	user := db.GetUserByChatID(qrCodeMessage.UserChatID)
+	numberOfEvents := db.CountUserEventVisitsForUser(qrCodeMessage.UserChatID)
+
+	if numberOfEvents > 4 && user.QuizCityName != nil {
+		messages := db.GetMessagesByType(enums.FINAL_PASS)
+		message := messages[0]
+		message.Recipient = &models.Recipient{
+			ChatID: qrCodeMessage.UserChatID,
+		}
+
+		nc.Publish(message)
+
+		c.JSON(200, gin.H{"status": "accepted"})
+
+		return
+	} else {
+
+		var text = "К сожалению, условия для прохода не выполнены.\n\nПроверьте свой статус по кнопке \"Показать статус\"."
+
+		var message = &models.SendableMessage{
+			Text: &text,
+			Recipient: &models.Recipient{
+				ChatID: qrCodeMessage.UserChatID,
+			},
+		}
+
+		nc.Publish(message)
+
+		c.JSON(200, gin.H{"status": "forbidden"})
+		return
+	}
+
+}
+
 func createUserEventVisit(c *gin.Context) {
 
 	// json consist of one significant field user_chat_id
@@ -89,57 +136,23 @@ func createUserEventVisit(c *gin.Context) {
 		return
 	}
 
-	goalDate, err := time.Parse("2006-01-02", config.FINISH_PASS_DATE)
-	if err != nil {
-		fmt.Println("error parsing date")
-		c.JSON(500, gin.H{"error": "internal server error"})
-		return
-	}
-
-	fmt.Println("Now", time.Now())
-	fmt.Println("Goal", goalDate)
-
-	if helpers.IsNowAfter(goalDate) {
-		user := db.GetUserByChatID(qrCodeMessage.UserChatID)
-		numberOfEvents := db.CountUserEventVisitsForUser(qrCodeMessage.UserChatID)
-
-		if numberOfEvents > 4 && user.QuizCityName != nil {
-			messages := db.GetMessagesByType(enums.FINAL_PASS)
-			message := messages[0]
-			message.Recipient = &models.Recipient{
-				ChatID: qrCodeMessage.UserChatID,
-			}
-
-			nc.Publish(message)
-
-			c.JSON(200, gin.H{"status": "accepted"})
-
-			return
-		} else {
-
-			var text = "К сожалению, условия для прохода не выполнены.\n\nПроверьте свой статус по кнопке \"Показать статус\"."
-
-			var message = &models.SendableMessage{
-				Text: &text,
-				Recipient: &models.Recipient{
-					ChatID: qrCodeMessage.UserChatID,
-				},
-			}
-
-			nc.Publish(message)
-
-			c.JSON(200, gin.H{"status": "forbidden"})
-			return
-		}
-
-	}
-
 	userChatID := qrCodeMessage.UserChatID
 
 	fmt.Println(qrCodeMessage)
 
 	latestEventVisit, _ := db.GetLatestUserEventVisitByUserChatID(userChatID)
 	if time.Since(latestEventVisit).Minutes() < float64(config.EVENT_VISIT_DELAY_MINUTES) {
+		var text = "Кажется, ты уже посетил событие совсем недавно, попробуй посетить другое или немного подождать :)"
+
+		var message = &models.SendableMessage{
+			Text: &text,
+			Recipient: &models.Recipient{
+				ChatID: qrCodeMessage.UserChatID,
+			},
+		}
+
+		nc.Publish(message)
+
 		c.JSON(304, gin.H{"status": "scanned recently"})
 		return
 	}
@@ -173,10 +186,7 @@ func createUserEventVisit(c *gin.Context) {
 		return
 	}
 
-	timeDBMessageStart := time.Now()
 	messages := db.GetMessagesByType(eventType)
-	timeDBMessage := time.Since(timeDBMessageStart)
-	fmt.Println("Get message(s) in:", timeDBMessage.Milliseconds(), "ms")
 
 	message := messages[rand.Intn(len(messages))]
 	message.Recipient = &models.Recipient{
