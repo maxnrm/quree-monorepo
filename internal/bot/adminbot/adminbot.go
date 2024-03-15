@@ -220,6 +220,7 @@ var menuUnauthorized = &tele.ReplyMarkup{
 var replyKeyboardAuthorized = [][]tele.ReplyButton{
 	{*replyButtons["help"]},
 	{*replyButtons["scanner"]},
+	{*replyButtons["pass_check"]},
 }
 
 var replyKeyboardUnauthorized = [][]tele.ReplyButton{
