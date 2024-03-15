@@ -80,9 +80,10 @@
                 body: JSON.stringify(sendObject)
             })
 
-            if (result.ok) {
+            if (result.ok || result.status == 304) {
                 lastScannedChatID = sendObject.user_chat_id
             }
+
         })
 
         tg.ready();
