@@ -71,6 +71,40 @@ func (pg *pg) UpdateUserQuizCity(userCityMessage *models.UserCityMessage) error 
 	return result.Error
 }
 
+func (pg *pg) GetAdminChatIDs() []string {
+
+	var admins []dbmodels.Admin
+	result := pg.Find(&admins)
+
+	if result.Error != nil {
+		return nil
+	}
+
+	var adminIds []string
+	for _, admin := range admins {
+		adminIds = append(adminIds, admin.ChatID)
+	}
+
+	return adminIds
+}
+
+func (pg *pg) GetUserChatIDs() []string {
+
+	var users []dbmodels.User
+	result := pg.Find(&users)
+
+	if result.Error != nil {
+		return nil
+	}
+
+	var userIds []string
+	for _, user := range users {
+		userIds = append(userIds, user.ChatID)
+	}
+
+	return userIds
+}
+
 func (pg *pg) GetAdminByChatID(chatID string) *dbmodels.Admin {
 	var admin *dbmodels.Admin
 	// get user by chatID and Role
@@ -203,20 +237,6 @@ func (pg *pg) CountUsersWithQuiz() int64 {
 
 	return count
 }
-
-// function to get users with more than four visits from db
-// should use sql statement, cause visists and users are in different tables
-// SELECT
-//     users.chat_id,
-//     COUNT(user_event_visits.id) AS VisitsCount
-// FROM
-//     users
-// LEFT JOIN
-//     User_Event_Visits ON users.chat_id = user_event_visits.user_chat_id
-// GROUP BY
-//     users.chat_id
-// ORDER BY
-//     VisitsCount DESC;
 
 func (pg *pg) CountUsersWithMoreThanFourVisits() int64 {
 
