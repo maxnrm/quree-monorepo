@@ -2,7 +2,7 @@ server {
     listen       80;
     server_name quree.maxnrm.monster;
 
-    location ~ /webapp/admin-pass-check {
+    location ~ /webapp/admin_pass_check {
         root   /usr/share/nginx/html;
         index  admin_pass_check.html;
     }
